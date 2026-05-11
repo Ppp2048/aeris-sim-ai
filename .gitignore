@@ -234,3 +234,16 @@ frontend/.env.local
 backend/app/data/datasets/*.csv
 backend/app/data/models/*.txt
 backend/app/data/replays/*.json
+backend/.venv/
+backend/app/data/aeris.db
+backend/app/data/datasets/
+backend/app/data/integrations/
+backend/app/data/models/
+backend/app/data/replays/
+frontend/node_modules/
+frontend/.next/
+.env
+.env.local
+frontend/.env.local
+__pycache__/
+*.pyc

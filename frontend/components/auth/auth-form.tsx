@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { AlertCircle, ArrowRight, Eye, EyeOff, LockKeyhole, Radar, ScanLine, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
@@ -11,7 +11,7 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { login, register } from "@/lib/api";
+import { checkBackendHealth, login, register } from "@/lib/api";
 import { saveToken } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +24,7 @@ type FormErrors = {
 
 export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState("AERIS Analyst");
   const [email, setEmail] = useState(mode === "login" ? "admin@aeris.local" : "operator@aeris.local");
   const [password, setPassword] = useState(mode === "login" ? "admin123" : "aeris-local-pass");
@@ -54,9 +55,11 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     setLoading(true);
     setErrors({});
     try {
+      await checkBackendHealth();
       const result = isLogin ? await login(email.trim(), password) : await register(name.trim(), email.trim(), password);
       saveToken(result.access_token);
-      router.push("/dashboard");
+      const next = searchParams.get("next");
+      router.push(isSafeInternalPath(next) ? next : "/dashboard");
     } catch (err) {
       setErrors({ form: err instanceof Error ? err.message : "Authentication failed." });
     } finally {
@@ -193,6 +196,10 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       </section>
     </main>
   );
+}
+
+function isSafeInternalPath(path: string | null): path is string {
+  return Boolean(path && path.startsWith("/") && !path.startsWith("//") && !path.startsWith("/login") && !path.startsWith("/register"));
 }
 
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {

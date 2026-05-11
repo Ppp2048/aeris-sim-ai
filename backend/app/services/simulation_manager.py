@@ -88,6 +88,9 @@ class SimulationManager:
                 clutter_density=self.scene_config.clutter_level,
                 max_range_m=self.scene_config.radar_range_m,
                 max_abs_velocity_mps=self.scene_config.max_velocity_mps,
+                threshold_scale=self.scene_config.cfar_threshold_scale,
+                guard_cells=self.scene_config.guard_cells,
+                training_cells=self.scene_config.training_cells,
                 tracker=self.tracker,
                 seed=self.frame_id,
             )
@@ -225,20 +228,66 @@ class SimulationManager:
         }
 
     def _default_scene_config(self) -> SceneConfig:
-        generated = generate_scene(count=5, seed=21)
         return SceneConfig(
+            radar_range_m=3000,
+            max_velocity_mps=120,
+            noise_level=0.08,
+            clutter_level=0.04,
+            frame_rate=3.0,
+            cfar_threshold_scale=4.2,
+            guard_cells=2,
+            training_cells=8,
             objects=[
                 SceneObjectConfig(
-                    id=obj.id,
-                    label=obj.label,
-                    range_m=obj.range_m,
-                    velocity_mps=obj.velocity_mps,
-                    angle_deg=obj.angle_deg,
-                    rcs=obj.rcs,
-                    altitude_m=obj.altitude_m,
-                    heading_deg=obj.heading_deg,
+                    id=1,
+                    label="drone",
+                    range_m=820,
+                    velocity_mps=-18,
+                    angle_deg=22,
+                    rcs=12,
+                    altitude_m=110,
+                    heading_deg=214,
+                ),
+                SceneObjectConfig(
+                    id=2,
+                    label="bird",
+                    range_m=1450,
+                    velocity_mps=9,
+                    angle_deg=-34,
+                    rcs=4,
+                    altitude_m=70,
+                    heading_deg=78,
+                ),
+                SceneObjectConfig(
+                    id=3,
+                    label="vehicle",
+                    range_m=1880,
+                    velocity_mps=-24,
+                    angle_deg=8,
+                    rcs=36,
+                    altitude_m=0,
+                    heading_deg=270,
+                ),
+                SceneObjectConfig(
+                    id=4,
+                    label="human",
+                    range_m=420,
+                    velocity_mps=1.8,
+                    angle_deg=-12,
+                    rcs=7,
+                    altitude_m=0,
+                    heading_deg=18,
+                ),
+                SceneObjectConfig(
+                    id=5,
+                    label="unknown",
+                    range_m=270,
+                    velocity_mps=3.5,
+                    angle_deg=42,
+                    rcs=9,
+                    altitude_m=12,
+                    heading_deg=165,
                 )
-                for obj in generated
             ]
         )
 

@@ -16,6 +16,35 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [checking, setChecking] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem("aeris_sidebar_collapsed");
+    setSidebarCollapsed(stored === "true");
+  }, []);
+
+  useEffect(() => {
+    function handleCommandSearch(event: KeyboardEvent) {
+      if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable) return;
+      const search = document.querySelector<HTMLInputElement>("[data-command-search='true']");
+      if (!search) return;
+      event.preventDefault();
+      search.focus();
+    }
+
+    window.addEventListener("keydown", handleCommandSearch);
+    return () => window.removeEventListener("keydown", handleCommandSearch);
+  }, []);
+
+  function toggleSidebar() {
+    setSidebarCollapsed((value) => {
+      const next = !value;
+      window.localStorage.setItem("aeris_sidebar_collapsed", String(next));
+      return next;
+    });
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -56,8 +85,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <main className="min-h-screen">
       <RadarGridBackground />
-      <Sidebar />
-      <div className="lg:pl-64">
+      <Sidebar collapsed={sidebarCollapsed} onToggle={toggleSidebar} />
+      <div className={sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"}>
         <Topbar user={user} />
         <Sidebar mobile />
         <motion.section

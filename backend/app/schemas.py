@@ -63,6 +63,9 @@ class SceneConfig(BaseModel):
     noise_level: float = Field(default=0.08, ge=0.0, le=2.0)
     clutter_level: float = Field(default=0.035, ge=0.0, le=0.5)
     frame_rate: float = Field(default=2.0, gt=0.1, le=30)
+    cfar_threshold_scale: float = Field(default=4.0, ge=1.1, le=20)
+    guard_cells: int = Field(default=2, ge=1, le=8)
+    training_cells: int = Field(default=8, ge=2, le=32)
     objects: list[SceneObjectConfig] = Field(default_factory=list)
 
 

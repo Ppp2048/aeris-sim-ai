@@ -9,6 +9,7 @@ import {
   BrainCircuit,
   CircleDot,
   Cpu,
+  DatabaseZap,
   Gauge,
   Map,
   Radar,
@@ -16,12 +17,14 @@ import {
   ScanSearch,
   ShieldAlert,
   Target,
-  Timer
+  WifiOff
 } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import { GlassCard } from "@/components/ui/glass-card";
 import { MetricCard } from "@/components/ui/metric-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Toast } from "@/components/ui/toast";
 import { startSimulation } from "@/lib/api";
 import { simulationSocketUrl } from "@/lib/websocket";
 import type { FrameDetection, SceneObject, SimulationFrame, Track } from "@/lib/types";
@@ -36,17 +39,28 @@ export function MonitoringDashboard() {
   const [frame, setFrame] = useState<SimulationFrame>(() => createMockFrame(1));
   const [demoMode, setDemoMode] = useState(false);
   const [connected, setConnected] = useState(false);
+  const [toast, setToast] = useState<{ tone: "success" | "warning" | "error"; message: string } | null>(null);
   const lastUpdate = useRef(0);
 
   useEffect(() => {
     let socket: WebSocket | null = null;
     let demoTimer: ReturnType<typeof setInterval> | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let reconnectAttempt = 0;
     let cancelled = false;
 
-    function startDemo() {
+    function clearDemoTimer() {
+      if (demoTimer) {
+        clearInterval(demoTimer);
+        demoTimer = null;
+      }
+    }
+
+    function startDemo(message = "Live backend stream unavailable. Showing realistic local demo data.") {
       if (cancelled || demoTimer) return;
       setDemoMode(true);
       setConnected(false);
+      setToast({ tone: "warning", message });
       let id = 1;
       demoTimer = setInterval(() => {
         id += 1;
@@ -54,17 +68,31 @@ export function MonitoringDashboard() {
       }, 900);
     }
 
-    startSimulation()
-      .then(() => {
+    function scheduleReconnect() {
+      if (cancelled || reconnectTimer) return;
+      const delay = Math.min(3000 + reconnectAttempt * 1500, 10000);
+      reconnectAttempt += 1;
+      reconnectTimer = setTimeout(() => {
+        reconnectTimer = null;
+        connect();
+      }, delay);
+    }
+
+    function connect() {
+      startSimulation()
+        .then(() => {
         if (cancelled) return;
         socket = new WebSocket(simulationSocketUrl());
         socket.onopen = () => {
+          reconnectAttempt = 0;
+          clearDemoTimer();
           setConnected(true);
           setDemoMode(false);
+          setToast({ tone: "success", message: "Live simulation stream connected." });
         };
         socket.onmessage = (event) => {
           const now = Date.now();
-          if (now - lastUpdate.current < 280) return;
+          if (now - lastUpdate.current < 420) return;
           lastUpdate.current = now;
           try {
             const data = JSON.parse(event.data) as Partial<SimulationFrame> & { type?: string };
@@ -74,25 +102,45 @@ export function MonitoringDashboard() {
             startDemo();
           }
         };
-        socket.onerror = startDemo;
+        socket.onerror = () => {
+          startDemo();
+          scheduleReconnect();
+        };
         socket.onclose = () => {
-          if (!cancelled && !demoTimer) startDemo();
+          if (!cancelled) {
+            startDemo();
+            scheduleReconnect();
+          }
         };
       })
-      .catch(startDemo);
+        .catch(() => {
+          startDemo();
+          scheduleReconnect();
+        });
+    }
+
+    connect();
 
     return () => {
       cancelled = true;
       socket?.close();
-      if (demoTimer) clearInterval(demoTimer);
+      clearDemoTimer();
+      if (reconnectTimer) clearTimeout(reconnectTimer);
     };
   }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 3800);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   const enrichedTracks = useMemo(() => enrichTracks(frame.tracks, frame.detections, frame.objects), [frame]);
   const primaryDetection = frame.detections[0] ?? createMockFrame(0).detections[0];
 
   return (
     <div className="space-y-5">
+      {toast && <Toast tone={toast.tone} message={toast.message} onDismiss={() => setToast(null)} />}
       <SectionHeader
         title="Mission Monitoring Dashboard"
         description="Live synthetic radar frames, detections, classifications, tracks, alerts, and system metrics."
@@ -103,6 +151,21 @@ export function MonitoringDashboard() {
           </>
         }
       />
+
+      {demoMode && (
+        <GlassCard className="flex flex-col gap-3 border-amber-400/35 bg-amber-400/10 p-4 text-amber-800 dark:text-amber-100 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-start gap-3">
+            <WifiOff className="mt-0.5 shrink-0" size={19} />
+            <div>
+              <div className="font-semibold">Demo mode active</div>
+              <div className="text-sm opacity-85">
+                The dashboard is using fallback simulation data and will reconnect to the local WebSocket automatically.
+              </div>
+            </div>
+          </div>
+          <StatusBadge tone="warning">Reconnecting</StatusBadge>
+        </GlassCard>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <MetricCard label="Simulated FPS" value={frame.stats.simulated_fps.toFixed(1)} icon={Gauge} tone="text-primary" />
@@ -271,29 +334,44 @@ const TargetTrackingTable = memo(function TargetTrackingTable({ tracks }: { trac
   return (
     <GlassCard>
       <PanelTitle icon={Target} title="Target Tracking Table" detail={`${tracks.length} tracks`} />
+      {!tracks.length ? (
+        <EmptyState
+          className="mt-4"
+          icon={DatabaseZap}
+          title="No active tracks"
+          description="Tracks will appear after detections are associated across simulation frames."
+        />
+      ) : (
       <div className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-[760px] text-left text-sm">
+        <table className="w-full min-w-[760px] border-separate border-spacing-y-2 text-left text-sm">
           <thead className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
             <tr>
-              <th className="pb-3">Track ID</th>
-              <th className="pb-3">Class</th>
-              <th className="pb-3">Range</th>
-              <th className="pb-3">Velocity</th>
-              <th className="pb-3">Angle</th>
-              <th className="pb-3">Confidence</th>
-              <th className="pb-3">Status</th>
+              <th className="px-3 pb-1">Track ID</th>
+              <th className="px-3 pb-1">Class</th>
+              <th className="px-3 pb-1">Range</th>
+              <th className="px-3 pb-1">Velocity</th>
+              <th className="px-3 pb-1">Angle</th>
+              <th className="px-3 pb-1">Confidence</th>
+              <th className="px-3 pb-1">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
+          <tbody>
             {tracks.map((track) => (
-              <tr key={track.track_id} className="text-muted-foreground">
-                <td className="py-3 font-medium text-foreground">#{track.track_id}</td>
-                <td className="py-3 capitalize">{track.classification}</td>
-                <td className="py-3">{track.range_m.toFixed(1)} m</td>
-                <td className="py-3">{track.velocity_mps.toFixed(1)} m/s</td>
-                <td className="py-3">{track.angle_deg.toFixed(0)} deg</td>
-                <td className="py-3">{Math.round(track.confidence * 100)}%</td>
-                <td className="py-3">
+              <tr key={track.track_id} className="rounded-lg text-muted-foreground">
+                <td className="rounded-l-lg border-y border-l border-border bg-muted/25 px-3 py-3 font-medium text-foreground">#{track.track_id}</td>
+                <td className="border-y border-border bg-muted/25 px-3 py-3 capitalize">{track.classification}</td>
+                <td className="border-y border-border bg-muted/25 px-3 py-3">{track.range_m.toFixed(1)} m</td>
+                <td className="border-y border-border bg-muted/25 px-3 py-3">{track.velocity_mps.toFixed(1)} m/s</td>
+                <td className="border-y border-border bg-muted/25 px-3 py-3">{track.angle_deg.toFixed(0)} deg</td>
+                <td className="border-y border-border bg-muted/25 px-3 py-3">
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+                      <div className="h-full rounded-full bg-primary" style={{ width: `${Math.round(track.confidence * 100)}%` }} />
+                    </div>
+                    {Math.round(track.confidence * 100)}%
+                  </div>
+                </td>
+                <td className="rounded-r-lg border-y border-r border-border bg-muted/25 px-3 py-3">
                   <StatusBadge tone={track.status === "lost" ? "danger" : track.status === "locked" ? "online" : "neutral"}>
                     {track.status}
                   </StatusBadge>
@@ -303,6 +381,7 @@ const TargetTrackingTable = memo(function TargetTrackingTable({ tracks }: { trac
           </tbody>
         </table>
       </div>
+      )}
     </GlassCard>
   );
 });
@@ -419,21 +498,26 @@ function modelInferenceMs(frame: SimulationFrame) {
 
 function createMockFrame(frameId: number): SimulationFrame {
   const objects: SceneObject[] = [
-    { id: 1, label: "drone", range_m: 780 + frameId * 8, velocity_mps: 18, angle_deg: 18, rcs: 12, altitude_m: 90, heading_deg: 45 },
-    { id: 2, label: "vehicle", range_m: 1320 - frameId * 4, velocity_mps: -12, angle_deg: -28, rcs: 30, altitude_m: 0, heading_deg: 270 },
-    { id: 3, label: "unknown", range_m: 230, velocity_mps: 3, angle_deg: 42, rcs: 7, altitude_m: 0, heading_deg: 180 }
+    { id: 1, label: "drone", range_m: 820 - frameId * 6, velocity_mps: -18, angle_deg: 22, rcs: 12, altitude_m: 110, heading_deg: 214 },
+    { id: 2, label: "bird", range_m: 1450 + frameId * 3, velocity_mps: 9, angle_deg: -34, rcs: 4, altitude_m: 70, heading_deg: 78 },
+    { id: 3, label: "vehicle", range_m: 1880 - frameId * 8, velocity_mps: -24, angle_deg: 8, rcs: 36, altitude_m: 0, heading_deg: 270 },
+    { id: 4, label: "human", range_m: 420 + frameId * 0.6, velocity_mps: 1.8, angle_deg: -12, rcs: 7, altitude_m: 0, heading_deg: 18 },
+    { id: 5, label: "unknown", range_m: 270 + frameId * 1.2, velocity_mps: 3.5, angle_deg: 42, rcs: 9, altitude_m: 12, heading_deg: 165 }
   ];
   const heatmap = Array.from({ length: 64 }, (_, row) =>
     Array.from({ length: 64 }, (_, col) => {
       const p1 = Math.exp(-((row - 38) ** 2 + (col - 24 - (frameId % 6)) ** 2) / 80);
       const p2 = Math.exp(-((row - 28) ** 2 + (col - 44) ** 2) / 60);
-      return Number(Math.min(1, 0.08 + p1 * 0.9 + p2 * 0.55 + ((row + col + frameId) % 11) * 0.006).toFixed(4));
+      const p3 = Math.exp(-((row - 48) ** 2 + (col - 10) ** 2) / 46);
+      const p4 = Math.exp(-((row - 33) ** 2 + (col - 8) ** 2) / 32);
+      return Number(Math.min(1, 0.08 + p1 * 0.9 + p2 * 0.55 + p3 * 0.34 + p4 * 0.42 + ((row + col + frameId) % 11) * 0.006).toFixed(4));
     })
   );
   const detections: FrameDetection[] = [
-    { range_bin: 24 + (frameId % 6), doppler_bin: 38, confidence: 0.91, estimated_range_m: objects[0].range_m, estimated_velocity_mps: 18, power: 0.96, classification: "drone" },
-    { range_bin: 44, doppler_bin: 28, confidence: 0.74, estimated_range_m: objects[1].range_m, estimated_velocity_mps: -12, power: 0.72, classification: "vehicle" },
-    { range_bin: 8, doppler_bin: 32, confidence: 0.66, estimated_range_m: objects[2].range_m, estimated_velocity_mps: 3, power: 0.61, classification: "unknown" }
+    { range_bin: 24 + (frameId % 6), doppler_bin: 38, confidence: 0.91, estimated_range_m: objects[0].range_m, estimated_velocity_mps: -18, power: 0.96, classification: "drone" },
+    { range_bin: 44, doppler_bin: 28, confidence: 0.72, estimated_range_m: objects[1].range_m, estimated_velocity_mps: 9, power: 0.58, classification: "bird" },
+    { range_bin: 10, doppler_bin: 48, confidence: 0.68, estimated_range_m: objects[2].range_m, estimated_velocity_mps: -24, power: 0.64, classification: "vehicle" },
+    { range_bin: 8, doppler_bin: 33, confidence: 0.66, estimated_range_m: objects[4].range_m, estimated_velocity_mps: 3.5, power: 0.61, classification: "unknown" }
   ];
   const tracks: Track[] = detections.map((detection, index) => ({
     track_id: index + 1,

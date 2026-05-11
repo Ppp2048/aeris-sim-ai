@@ -31,6 +31,7 @@ import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
 import { SectionHeader } from "@/components/ui/section-header";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Toast } from "@/components/ui/toast";
 import {
   configureSimulationScene,
   getCurrentSimulationFrame,
@@ -98,6 +99,7 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("Scene ready");
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ tone: "success" | "error" | "warning"; message: string } | null>(null);
   const [replayPath, setReplayPath] = useState<string | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const didAutoRun = useRef(false);
@@ -109,6 +111,9 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
       noise_level: settings.noise_level,
       clutter_level: settings.clutter_level,
       frame_rate: settings.frame_rate,
+      cfar_threshold_scale: settings.cfar_threshold_scale,
+      guard_cells: settings.guard_cells,
+      training_cells: settings.training_cells,
       objects
     }),
     [settings, objects]
@@ -126,6 +131,12 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
     return () => socketRef.current?.close();
   }, []);
 
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 3600);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
   async function syncScene() {
     const response = await configureSimulationScene(scene);
     setReplayPath(response.replay_path);
@@ -139,7 +150,9 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
     try {
       await action();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Simulation request failed");
+      const nextError = err instanceof Error ? err.message : "Simulation request failed";
+      setError(nextError);
+      setToast({ tone: "error", message: nextError });
     } finally {
       setBusy(false);
     }
@@ -152,6 +165,7 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
       setRunning(started.running);
       setReplayPath(started.replay_path);
       setMessage(started.message);
+      setToast({ tone: "success", message: "Simulation started with live synthetic scene." });
       connectStream();
       const initialFrame = await getCurrentSimulationFrame();
       setFrame(initialFrame);
@@ -166,6 +180,7 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
       setRunning(stopped.running);
       setReplayPath(stopped.replay_path);
       setMessage(stopped.message);
+      setToast({ tone: "success", message: "Simulation stopped." });
     });
   }
 
@@ -175,6 +190,7 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
       const nextFrame = await stepSimulation();
       setFrame(nextFrame);
       setMessage(`frame ${nextFrame.frame_id} generated`);
+      setToast({ tone: "success", message: `Generated frame ${nextFrame.frame_id}.` });
     });
   }
 
@@ -189,6 +205,7 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
       const stopped = await stopSimulation();
       setReplayPath(stopped.replay_path);
       setMessage("scene reset");
+      setToast({ tone: "success", message: "Scene reset to default multi-target preset." });
     });
   }
 
@@ -198,6 +215,7 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
       setRunning(false);
       setReplayPath(stopped.replay_path);
       setMessage(stopped.replay_path ? "replay saved locally" : "no replay frames recorded yet");
+      setToast({ tone: stopped.replay_path ? "success" : "warning", message: stopped.replay_path ? "Replay saved locally." : "No replay frames recorded yet." });
     });
   }
 
@@ -206,7 +224,13 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
     const socket = new WebSocket(simulationSocketUrl());
     socketRef.current = socket;
     socket.onmessage = (event) => {
-      const payload = JSON.parse(event.data) as Partial<SimulationFrame> & { type?: string; replay_path?: string };
+      let payload: Partial<SimulationFrame> & { type?: string; replay_path?: string };
+      try {
+        payload = JSON.parse(event.data) as Partial<SimulationFrame> & { type?: string; replay_path?: string };
+      } catch {
+        setToast({ tone: "warning", message: "Ignored a malformed simulation frame." });
+        return;
+      }
       if (payload.type === "status") {
         if (typeof payload.replay_path === "string") setReplayPath(payload.replay_path);
         return;
@@ -217,6 +241,7 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
     };
     socket.onerror = () => {
       setMessage("stream unavailable; step mode still works");
+      setToast({ tone: "warning", message: "Live stream unavailable. Step mode still works." });
     };
   }
 
@@ -272,6 +297,7 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
 
   return (
     <div className="space-y-5">
+      {toast && <Toast tone={toast.tone} message={toast.message} onDismiss={() => setToast(null)} />}
       <SectionHeader
         title="Synthetic Radar Simulator"
         description="Configure a local radar scene, run synthetic frames, and inspect detections without hardware or RF transmission."

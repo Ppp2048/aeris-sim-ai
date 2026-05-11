@@ -2,7 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, BrainCircuit, Command, Gauge, PlugZap, Radar, Search, Settings, ShieldCheck, Video } from "lucide-react";
+import {
+  Activity,
+  BrainCircuit,
+  ChevronsLeft,
+  ChevronsRight,
+  Command,
+  Gauge,
+  PlugZap,
+  Radar,
+  Search,
+  Settings,
+  ShieldCheck,
+  Video
+} from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +28,15 @@ const navItems = [
   { href: "/settings", label: "Settings", icon: Settings }
 ];
 
-export function Sidebar({ mobile = false }: { mobile?: boolean }) {
+export function Sidebar({
+  mobile = false,
+  collapsed = false,
+  onToggle
+}: {
+  mobile?: boolean;
+  collapsed?: boolean;
+  onToggle?: () => void;
+}) {
   const pathname = usePathname();
   return (
     <aside
@@ -23,30 +44,55 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
         "border-border text-panel-foreground backdrop-blur-xl",
         mobile
           ? "command-surface sticky top-14 z-20 flex gap-2 overflow-x-auto border-b px-4 py-2 lg:hidden"
-          : "command-surface fixed left-0 top-0 hidden h-full w-64 flex-col border-r p-5 lg:flex"
+          : cn("command-surface fixed left-0 top-0 hidden h-full flex-col border-r p-4 transition-all duration-200 lg:flex", collapsed ? "w-20" : "w-64")
       )}
     >
       {!mobile && (
-        <Link href="/" className="mb-6 flex items-center gap-3">
+        <div className="mb-6 flex items-center gap-3">
+          <Link href="/" className="flex min-w-0 flex-1 items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/35 bg-primary text-slate-950 shadow-[0_0_34px_hsl(var(--primary)/0.22)]">
             <Activity size={22} />
           </div>
-          <div>
+            <div className={cn("min-w-0 transition", collapsed && "hidden")}>
             <div className="font-semibold text-foreground">AERIS-Sim AI</div>
             <div className="text-xs text-muted-foreground">Radar digital twin</div>
           </div>
-        </Link>
-      )}
-      {!mobile && (
-        <div className="mb-5 rounded-xl border border-border bg-muted/35 p-2">
-          <div className="flex items-center gap-2 rounded-lg px-2 py-2 text-xs text-muted-foreground">
-            <Search size={15} />
-            <span className="min-w-0 flex-1">Command navigation</span>
-            <span className="rounded border border-border bg-panel px-1.5 py-0.5 font-mono text-[10px]">Ctrl K</span>
-          </div>
+          </Link>
+          <button
+            type="button"
+            onClick={onToggle}
+            className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/45 text-muted-foreground transition hover:border-primary/35 hover:text-primary lg:flex"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
+          </button>
         </div>
       )}
-      {!mobile && (
+      {!mobile && !collapsed && (
+        <div className="mb-5 rounded-xl border border-border bg-muted/35 p-2">
+          <label className="flex items-center gap-2 rounded-lg px-2 py-2 text-xs text-muted-foreground">
+            <Search size={15} />
+            <input
+              data-command-search="true"
+              className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
+              placeholder="Search modules"
+              onChange={() => undefined}
+            />
+            <span className="rounded border border-border bg-panel px-1.5 py-0.5 font-mono text-[10px]">/</span>
+          </label>
+        </div>
+      )}
+      {!mobile && collapsed && (
+        <button
+          type="button"
+          data-command-search="true"
+          className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-muted/35 text-muted-foreground outline-none transition focus:border-primary focus:text-primary"
+          aria-label="Command search"
+        >
+          <Search size={17} />
+        </button>
+      )}
+      {!mobile && !collapsed && (
         <div className="mb-2 flex items-center gap-2 px-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
           <Command size={12} />
           Modules
@@ -63,16 +109,18 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
               className={cn(
                 "group flex items-center gap-3 rounded-lg border border-transparent px-3 py-2 text-sm text-muted-foreground transition hover:border-border hover:bg-muted/65 hover:text-foreground",
                 active && "border-primary/25 bg-primary/12 text-primary shadow-[inset_3px_0_0_hsl(var(--primary))]",
-                mobile && "whitespace-nowrap"
+                mobile && "whitespace-nowrap",
+                collapsed && !mobile && "justify-center px-2"
               )}
+              title={collapsed && !mobile ? item.label : undefined}
             >
               <Icon className="transition group-hover:scale-105" size={18} />
-              {item.label}
+              {(!collapsed || mobile) && item.label}
             </Link>
           );
         })}
       </nav>
-      {!mobile && (
+      {!mobile && !collapsed && (
         <div className="mt-auto rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-700 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)] dark:text-amber-100">
           <div className="mb-2 flex items-center gap-2 font-semibold">
             <ShieldCheck size={15} />
