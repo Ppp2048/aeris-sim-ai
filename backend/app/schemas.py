@@ -181,6 +181,62 @@ class ModelStatus(BaseModel):
     classes: list[str]
 
 
+ModelType = Literal["auto", "sklearn_rf", "logistic_regression", "torch_cnn"]
+
+
+class ModelTrainRequest(BaseModel):
+    dataset_id: str | None = None
+    model_type: ModelType = "sklearn_rf"
+    test_size: float = Field(default=0.25, gt=0.05, lt=0.5)
+    max_samples: int | None = Field(default=None, ge=10, le=10000)
+    unknown_threshold: float = Field(default=0.42, ge=0.05, le=0.95)
+
+
+class ModelMetadata(BaseModel):
+    model_id: str
+    type: str
+    classes: list[str]
+    accuracy_estimate: float | None = None
+    created_at: str
+    dataset_id: str
+    path: str
+
+
+class ModelServiceStatus(BaseModel):
+    trained: bool
+    active_model_id: str | None = None
+    active_model_type: str | None = None
+    classes: list[str]
+    accuracy_estimate: float | None = None
+    torch_available: bool
+    available_models: int
+
+
+class ModelPredictRequest(BaseModel):
+    heatmap: list[list[float]] | None = None
+    dataset_id: str | None = None
+    sample_id: int | None = Field(default=None, ge=1)
+    unknown_threshold: float | None = Field(default=None, ge=0.05, le=0.95)
+
+
+class ModelPredictionScore(BaseModel):
+    class_label: str
+    confidence: float
+
+
+class ModelPredictionResponse(BaseModel):
+    predicted_class: str
+    confidence: float
+    top_predictions: list[ModelPredictionScore]
+    model_id: str
+    inference_ms: float
+
+
+class LoadCustomModelRequest(BaseModel):
+    model_id: str | None = None
+    model_path: str | None = None
+
+
 class ParserInfo(BaseModel):
     name: str
     description: str

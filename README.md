@@ -100,6 +100,11 @@ Register a new user from the UI, or call `POST /api/auth/register`. User records
 - `GET /api/dataset/{dataset_id}`
 - `GET /api/dataset/{dataset_id}/sample/{sample_id}`
 - `POST /api/datasets/generate`
+- `POST /api/model/train`
+- `POST /api/model/predict`
+- `GET /api/model/status`
+- `GET /api/model/list`
+- `POST /api/model/load-custom`
 - `GET /api/models/status`
 - `POST /api/models/train`
 - `GET /api/integrations/parsers`
@@ -110,3 +115,4 @@ Register a new user from the UI, or call `POST /api/auth/register`. User records
 - The backend creates SQLite tables on startup.
 - All data is stored locally under `backend/app/data/`.
 - Synthetic datasets are stored under `backend/app/data/datasets/{dataset_id}/` with `metadata.json`, `.npy` heatmaps, per-sample JSON metadata, and PNG previews.
+- Classifier models are small local artifacts stored under `backend/app/data/models/{model_id}/` with `metadata.json` and a local model file. PyTorch CNN mode is optional and falls back to scikit-learn when torch is not installed.
