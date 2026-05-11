@@ -86,12 +86,12 @@ const heatmapCells = Array.from({ length: 160 }, (_, index) => {
 export function LandingPage() {
   return (
     <main className="min-h-screen overflow-hidden bg-background text-foreground">
-      <div className="pointer-events-none fixed inset-0 -z-10 radar-grid" />
+      <div className="pointer-events-none fixed inset-0 -z-10 radar-grid radar-grid-animated" />
       <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_18%_16%,hsl(var(--primary)/0.18),transparent_28rem),radial-gradient(circle_at_82%_12%,hsl(var(--accent)/0.14),transparent_24rem)]" />
 
       <header className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-slate-950 shadow-glow">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/35 bg-primary text-slate-950 shadow-[0_0_30px_hsl(var(--primary)/0.24)]">
             <Activity size={21} />
           </div>
           <div>
@@ -136,7 +136,7 @@ export function LandingPage() {
               ["CA-CFAR", "Detection"],
               ["JSONL", "Replays"]
             ].map(([value, label]) => (
-              <div key={label} className="rounded-lg border border-border bg-panel/70 p-3 backdrop-blur">
+              <div key={label} className="rounded-xl border border-border bg-panel/70 p-3 backdrop-blur transition hover:border-primary/35 hover:bg-panel/85">
                 <div className="text-lg font-semibold text-foreground">{value}</div>
                 <div className="text-xs text-muted-foreground">{label}</div>
               </div>
@@ -179,7 +179,7 @@ export function LandingPage() {
                 className={cn(feature.className)}
               >
                 <GlassCard className="h-full min-h-44 transition-transform hover:-translate-y-1 hover:border-primary/45">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/12 text-primary">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/12 text-primary">
                     <Icon size={21} />
                   </div>
                   <h3 className="mt-5 text-base font-semibold text-foreground">{feature.title}</h3>

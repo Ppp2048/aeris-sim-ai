@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { LoadingPulse } from "@/components/ui/loading-pulse";
 import { RadarGridBackground } from "@/components/ui/radar-grid-background";
 import { Sidebar } from "@/components/dashboard/sidebar";
@@ -59,7 +60,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="lg:pl-64">
         <Topbar user={user} />
         <Sidebar mobile />
-        <section className="p-4 lg:p-8">{children}</section>
+        <motion.section
+          key={pathname}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+          className="p-4 lg:p-8"
+        >
+          {children}
+        </motion.section>
       </div>
     </main>
   );

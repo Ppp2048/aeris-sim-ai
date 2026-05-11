@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, BrainCircuit, Gauge, PlugZap, Radar, Settings, ShieldCheck, Video } from "lucide-react";
+import { Activity, BrainCircuit, Command, Gauge, PlugZap, Radar, Search, Settings, ShieldCheck, Video } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { cn } from "@/lib/utils";
 
@@ -20,15 +20,15 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
   return (
     <aside
       className={cn(
-        "border-border bg-panel/88 text-panel-foreground backdrop-blur-xl",
+        "border-border text-panel-foreground backdrop-blur-xl",
         mobile
-          ? "sticky top-14 z-20 flex gap-2 overflow-x-auto border-b px-4 py-2 lg:hidden"
-          : "fixed left-0 top-0 hidden h-full w-64 flex-col border-r p-5 lg:flex"
+          ? "command-surface sticky top-14 z-20 flex gap-2 overflow-x-auto border-b px-4 py-2 lg:hidden"
+          : "command-surface fixed left-0 top-0 hidden h-full w-64 flex-col border-r p-5 lg:flex"
       )}
     >
       {!mobile && (
-        <Link href="/" className="mb-8 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-slate-950 shadow-glow">
+        <Link href="/" className="mb-6 flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/35 bg-primary text-slate-950 shadow-[0_0_34px_hsl(var(--primary)/0.22)]">
             <Activity size={22} />
           </div>
           <div>
@@ -36,6 +36,21 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
             <div className="text-xs text-muted-foreground">Radar digital twin</div>
           </div>
         </Link>
+      )}
+      {!mobile && (
+        <div className="mb-5 rounded-xl border border-border bg-muted/35 p-2">
+          <div className="flex items-center gap-2 rounded-lg px-2 py-2 text-xs text-muted-foreground">
+            <Search size={15} />
+            <span className="min-w-0 flex-1">Command navigation</span>
+            <span className="rounded border border-border bg-panel px-1.5 py-0.5 font-mono text-[10px]">Ctrl K</span>
+          </div>
+        </div>
+      )}
+      {!mobile && (
+        <div className="mb-2 flex items-center gap-2 px-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+          <Command size={12} />
+          Modules
+        </div>
       )}
       <nav className={cn(mobile ? "flex gap-2" : "space-y-1")}>
         {navItems.map((item) => {
@@ -46,19 +61,19 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground",
-                active && "bg-primary/12 text-primary",
+                "group flex items-center gap-3 rounded-lg border border-transparent px-3 py-2 text-sm text-muted-foreground transition hover:border-border hover:bg-muted/65 hover:text-foreground",
+                active && "border-primary/25 bg-primary/12 text-primary shadow-[inset_3px_0_0_hsl(var(--primary))]",
                 mobile && "whitespace-nowrap"
               )}
             >
-              <Icon size={18} />
+              <Icon className="transition group-hover:scale-105" size={18} />
               {item.label}
             </Link>
           );
         })}
       </nav>
       {!mobile && (
-        <div className="mt-auto rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-700 dark:text-amber-100">
+        <div className="mt-auto rounded-xl border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-700 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)] dark:text-amber-100">
           <div className="mb-2 flex items-center gap-2 font-semibold">
             <ShieldCheck size={15} />
             Local Simulation

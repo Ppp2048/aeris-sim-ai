@@ -11,7 +11,7 @@ const toneClass: Record<StatusTone, string> = {
   neutral: "border-border bg-muted text-muted-foreground"
 };
 
-export function StatusBadge({
+function StatusBadgeComponent({
   children,
   tone = "neutral",
   className
@@ -30,3 +30,5 @@ export function StatusBadge({
     </span>
   );
 }
+
+export const StatusBadge = React.memo(StatusBadgeComponent);

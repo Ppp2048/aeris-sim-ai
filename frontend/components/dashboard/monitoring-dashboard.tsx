@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
+import type { Data, Layout } from "plotly.js";
 import {
   AlertTriangle,
   Activity,
@@ -43,7 +44,7 @@ export function MonitoringDashboard() {
     let cancelled = false;
 
     function startDemo() {
-      if (cancelled) return;
+      if (cancelled || demoTimer) return;
       setDemoMode(true);
       setConnected(false);
       let id = 1;
@@ -65,9 +66,13 @@ export function MonitoringDashboard() {
           const now = Date.now();
           if (now - lastUpdate.current < 280) return;
           lastUpdate.current = now;
-          const data = JSON.parse(event.data) as Partial<SimulationFrame> & { type?: string };
-          if (data.type === "status" || !data.heatmap) return;
-          setFrame(data as SimulationFrame);
+          try {
+            const data = JSON.parse(event.data) as Partial<SimulationFrame> & { type?: string };
+            if (data.type === "status" || !data.heatmap) return;
+            setFrame(data as SimulationFrame);
+          } catch {
+            startDemo();
+          }
         };
         socket.onerror = startDemo;
         socket.onclose = () => {
@@ -123,7 +128,7 @@ export function MonitoringDashboard() {
   );
 }
 
-function RadarSweepPanel({ objects, detections }: { objects: SceneObject[]; detections: FrameDetection[] }) {
+const RadarSweepPanel = memo(function RadarSweepPanel({ objects, detections }: { objects: SceneObject[]; detections: FrameDetection[] }) {
   return (
     <GlassCard className="overflow-hidden">
       <PanelTitle icon={Radar} title="Radar Sweep" detail={`${objects.length} objects`} />
@@ -146,9 +151,9 @@ function RadarSweepPanel({ objects, detections }: { objects: SceneObject[]; dete
       </div>
     </GlassCard>
   );
-}
+});
 
-function RadarBlip({ object }: { object: SceneObject }) {
+const RadarBlip = memo(function RadarBlip({ object }: { object: SceneObject }) {
   const radius = Math.min(object.range_m / RADAR_RANGE_M, 1) * 42;
   const angle = ((object.angle_deg - 90) * Math.PI) / 180;
   const x = 50 + Math.cos(angle) * radius;
@@ -167,57 +172,69 @@ function RadarBlip({ object }: { object: SceneObject }) {
       />
     </div>
   );
-}
+});
 
-function HeatmapPanel({ frame }: { frame: SimulationFrame }) {
-  const x = frame.heatmap[0]?.map((_, index) => index) ?? [];
-  const y = frame.heatmap.map((_, index) => index);
+const HeatmapPanel = memo(function HeatmapPanel({ frame }: { frame: SimulationFrame }) {
+  const plotData = useMemo<Data[]>(() => {
+    const x = frame.heatmap[0]?.map((_, index) => index) ?? [];
+    const y = frame.heatmap.map((_, index) => index);
+    return [
+      {
+        z: frame.heatmap,
+        x,
+        y,
+        type: "heatmap" as const,
+        colorscale: [
+          [0, "#07111f"],
+          [0.25, "#075985"],
+          [0.52, "#06b6d4"],
+          [0.76, "#f59e0b"],
+          [1, "#f8fafc"]
+        ] as [number, string][],
+        showscale: false,
+        hoverinfo: "skip" as const
+      },
+      {
+        x: frame.detections.map((detection) => detection.range_bin),
+        y: frame.detections.map((detection) => detection.doppler_bin),
+        mode: "markers" as const,
+        type: "scatter" as const,
+        marker: { color: "#fb923c", size: 8, symbol: "circle-open", line: { width: 2 } },
+        name: "Detections",
+        hoverinfo: "skip" as const
+      }
+    ];
+  }, [frame.detections, frame.heatmap]);
+
+  const layout = useMemo<Partial<Layout>>(
+    () => ({
+      autosize: true,
+      height: 345,
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      font: { color: "hsl(var(--muted-foreground))" },
+      margin: { l: 36, r: 8, t: 12, b: 34 },
+      xaxis: { title: { text: "Range bin" }, gridcolor: "hsl(var(--border))", zeroline: false },
+      yaxis: { title: { text: "Doppler bin" }, gridcolor: "hsl(var(--border))", zeroline: false },
+      showlegend: false
+    }),
+    []
+  );
+
   return (
     <GlassCard className="min-h-[430px]">
       <PanelTitle icon={Activity} title="Range-Doppler Heatmap" detail={`Frame ${frame.frame_id}`} />
       <Plot
-        data={[
-          {
-            z: frame.heatmap,
-            x,
-            y,
-            type: "heatmap",
-            colorscale: [
-              [0, "#0f172a"],
-              [0.32, "#0891b2"],
-              [0.66, "#f59e0b"],
-              [1, "#f8fafc"]
-            ],
-            showscale: false
-          },
-          {
-            x: frame.detections.map((detection) => detection.range_bin),
-            y: frame.detections.map((detection) => detection.doppler_bin),
-            mode: "markers",
-            type: "scatter",
-            marker: { color: "#f97316", size: 8, symbol: "circle-open", line: { width: 2 } },
-            name: "Detections"
-          }
-        ]}
-        layout={{
-          autosize: true,
-          height: 345,
-          paper_bgcolor: "rgba(0,0,0,0)",
-          plot_bgcolor: "rgba(0,0,0,0)",
-          font: { color: "hsl(var(--muted-foreground))" },
-          margin: { l: 36, r: 8, t: 12, b: 34 },
-          xaxis: { title: { text: "Range bin" }, gridcolor: "hsl(var(--border))" },
-          yaxis: { title: { text: "Doppler bin" }, gridcolor: "hsl(var(--border))" },
-          showlegend: false
-        }}
+        data={plotData}
+        layout={layout}
         config={{ displayModeBar: false, responsive: true }}
         className="w-full"
       />
     </GlassCard>
   );
-}
+});
 
-function ClassificationPanel({ detection }: { detection: FrameDetection }) {
+const ClassificationPanel = memo(function ClassificationPanel({ detection }: { detection: FrameDetection }) {
   const predictions = topPredictions(detection);
   const threat = threatLevel(detection);
   return (
@@ -248,9 +265,9 @@ function ClassificationPanel({ detection }: { detection: FrameDetection }) {
       <div className="mt-3 text-xs text-muted-foreground">Model status: local classifier online</div>
     </GlassCard>
   );
-}
+});
 
-function TargetTrackingTable({ tracks }: { tracks: EnrichedTrack[] }) {
+const TargetTrackingTable = memo(function TargetTrackingTable({ tracks }: { tracks: EnrichedTrack[] }) {
   return (
     <GlassCard>
       <PanelTitle icon={Target} title="Target Tracking Table" detail={`${tracks.length} tracks`} />
@@ -288,9 +305,9 @@ function TargetTrackingTable({ tracks }: { tracks: EnrichedTrack[] }) {
       </div>
     </GlassCard>
   );
-}
+});
 
-function AlertsFeed({ alerts, frameId }: { alerts: string[]; frameId: number }) {
+const AlertsFeed = memo(function AlertsFeed({ alerts, frameId }: { alerts: string[]; frameId: number }) {
   const normalizedAlerts = alerts.length ? alerts : ["system_nominal"];
   return (
     <GlassCard>
@@ -311,9 +328,9 @@ function AlertsFeed({ alerts, frameId }: { alerts: string[]; frameId: number }) 
       </div>
     </GlassCard>
   );
-}
+});
 
-function MiniMapPanel({ objects, tracks }: { objects: SceneObject[]; tracks: EnrichedTrack[] }) {
+const MiniMapPanel = memo(function MiniMapPanel({ objects, tracks }: { objects: SceneObject[]; tracks: EnrichedTrack[] }) {
   return (
     <GlassCard>
       <PanelTitle icon={Map} title="Mini Map / Airspace View" detail={`${objects.length} contacts`} />
@@ -336,7 +353,7 @@ function MiniMapPanel({ objects, tracks }: { objects: SceneObject[]; tracks: Enr
       </div>
     </GlassCard>
   );
-}
+});
 
 function PanelTitle({ icon: Icon, title, detail }: { icon: typeof Radar; title: string; detail?: string }) {
   return (

@@ -4,14 +4,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-primary text-slate-950 hover:bg-primary/85 dark:text-slate-950",
-        secondary: "border border-border bg-panel text-foreground hover:bg-muted",
-        ghost: "text-muted-foreground hover:bg-muted hover:text-foreground",
-        danger: "bg-danger text-white hover:bg-danger/90"
+        default:
+          "neon-hover border border-primary/40 bg-primary text-slate-950 shadow-[0_0_24px_hsl(var(--primary)/0.16)] hover:-translate-y-0.5 hover:bg-primary/90 dark:text-slate-950",
+        secondary:
+          "border border-border bg-panel/80 text-foreground hover:-translate-y-0.5 hover:border-primary/35 hover:bg-muted/80",
+        ghost: "text-muted-foreground hover:bg-muted/75 hover:text-foreground",
+        danger:
+          "border border-danger/40 bg-danger text-white shadow-[0_0_24px_hsl(var(--danger)/0.14)] hover:-translate-y-0.5 hover:bg-danger/90"
       },
       size: {
         default: "h-10 px-4",

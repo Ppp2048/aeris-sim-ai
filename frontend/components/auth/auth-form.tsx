@@ -72,12 +72,12 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background text-foreground">
-      <div className="pointer-events-none absolute inset-0 radar-grid" />
+      <div className="pointer-events-none absolute inset-0 radar-grid radar-grid-animated" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_24%,hsl(var(--primary)/0.18),transparent_26rem),radial-gradient(circle_at_88%_18%,hsl(var(--accent)/0.12),transparent_24rem)]" />
 
       <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-4 py-5 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-slate-950 shadow-glow">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/35 bg-primary text-slate-950 shadow-[0_0_30px_hsl(var(--primary)/0.24)]">
             <Radar size={21} />
           </div>
           <div>
@@ -99,7 +99,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         >
           <GlassCard className="mx-auto w-full max-w-md p-6 md:p-7">
             <div className="mb-6">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-primary text-slate-950 shadow-glow">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-primary/35 bg-primary text-slate-950 shadow-[0_0_30px_hsl(var(--primary)/0.24)]">
                 <LockKeyhole size={23} />
               </div>
               <h1 className="text-2xl font-semibold text-foreground">{isLogin ? "Operator Login" : "Create Local Account"}</h1>

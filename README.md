@@ -18,11 +18,11 @@ Windows PowerShell:
 
 ```powershell
 cd backend
-py -3.11 -m venv .venv
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-python run_backend.py
+uvicorn app.main:app --reload
 ```
 
 macOS/Linux shell:
@@ -33,10 +33,14 @@ python3.11 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-python run_backend.py
+uvicorn app.main:app --reload
 ```
 
 Backend runs at [http://localhost:8000](http://localhost:8000). Health check: [http://localhost:8000/health](http://localhost:8000/health).
+
+You can also run `python run_backend.py`, but the primary local development command is `uvicorn app.main:app --reload`.
+
+If you use Windows Command Prompt instead of PowerShell, activate the backend environment with `.\.venv\Scripts\activate.bat`.
 
 ## Frontend Setup
 
@@ -99,15 +103,16 @@ Register a new user from the UI, or call `POST /api/auth/register`. User records
 - `GET /api/dataset/list`
 - `GET /api/dataset/{dataset_id}`
 - `GET /api/dataset/{dataset_id}/sample/{sample_id}`
-- `POST /api/datasets/generate`
 - `POST /api/model/train`
 - `POST /api/model/predict`
 - `GET /api/model/status`
 - `GET /api/model/list`
 - `POST /api/model/load-custom`
-- `GET /api/models/status`
-- `POST /api/models/train`
+- `POST /api/integrations/upload-data`
+- `POST /api/integrations/parse`
 - `GET /api/integrations/parsers`
+- `POST /api/integrations/upload-model-metadata`
+- `GET /api/integrations/model-adapters`
 
 ## Notes
 
