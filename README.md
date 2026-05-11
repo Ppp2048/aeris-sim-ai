@@ -95,6 +95,10 @@ Register a new user from the UI, or call `POST /api/auth/register`. User records
 - `POST /api/simulation/scene`
 - `GET /api/simulation/current-frame`
 - `WebSocket /ws/simulation`
+- `POST /api/dataset/generate`
+- `GET /api/dataset/list`
+- `GET /api/dataset/{dataset_id}`
+- `GET /api/dataset/{dataset_id}/sample/{sample_id}`
 - `POST /api/datasets/generate`
 - `GET /api/models/status`
 - `POST /api/models/train`
@@ -105,3 +109,4 @@ Register a new user from the UI, or call `POST /api/auth/register`. User records
 - No Docker is required for the initial local workflow.
 - The backend creates SQLite tables on startup.
 - All data is stored locally under `backend/app/data/`.
+- Synthetic datasets are stored under `backend/app/data/datasets/{dataset_id}/` with `metadata.json`, `.npy` heatmaps, per-sample JSON metadata, and PNG previews.

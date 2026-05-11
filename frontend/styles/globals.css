@@ -3,12 +3,33 @@
 @tailwind utilities;
 
 :root {
-  --background: 220 27% 7%;
+  --background: 210 40% 98%;
+  --foreground: 222 47% 11%;
+  --panel: 0 0% 100%;
+  --panel-foreground: 222 47% 11%;
+  --border: 214 32% 88%;
+  --primary: 199 89% 48%;
+  --accent: 187 85% 43%;
+  --danger: 0 84% 60%;
+  --muted: 210 40% 94%;
+  --muted-foreground: 215 16% 47%;
+  --grid-line: 214 32% 88%;
+  --radar-sweep: 187 85% 43%;
+}
+
+.dark {
+  --background: 222 47% 6%;
   --foreground: 210 40% 96%;
-  --border: 214 18% 22%;
+  --panel: 222 47% 10%;
+  --panel-foreground: 210 40% 96%;
+  --border: 215 25% 22%;
   --primary: 186 95% 55%;
-  --accent: 43 96% 56%;
-  --muted: 218 15% 24%;
+  --accent: 158 64% 52%;
+  --danger: 18 95% 58%;
+  --muted: 218 22% 17%;
+  --muted-foreground: 215 20% 65%;
+  --grid-line: 215 25% 22%;
+  --radar-sweep: 186 95% 55%;
 }
 
 * {
@@ -19,10 +40,7 @@ body {
   margin: 0;
   min-height: 100vh;
   color: hsl(var(--foreground));
-  background:
-    linear-gradient(135deg, rgba(8, 13, 25, 0.98), rgba(17, 24, 39, 0.98)),
-    repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.04) 0 1px, transparent 1px 80px),
-    repeating-linear-gradient(0deg, rgba(148, 163, 184, 0.035) 0 1px, transparent 1px 80px);
+  background: hsl(var(--background));
 }
 
 a {
@@ -31,8 +49,8 @@ a {
 }
 
 .glass-panel {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background: rgba(15, 23, 42, 0.74);
+  border: 1px solid hsl(var(--border) / 0.78);
+  background: hsl(var(--panel) / 0.78);
   backdrop-filter: blur(18px);
 }
 
@@ -47,5 +65,25 @@ a {
   }
   to {
     transform: translateY(100%);
+  }
+}
+
+.radar-grid {
+  background-image:
+    linear-gradient(hsl(var(--grid-line) / 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--grid-line) / 0.2) 1px, transparent 1px),
+    radial-gradient(circle at 50% 22%, hsl(var(--primary) / 0.13), transparent 32rem);
+  background-size: 48px 48px, 48px 48px, 100% 100%;
+}
+
+.radar-sweep {
+  background: conic-gradient(from 210deg, transparent 0deg, hsl(var(--radar-sweep) / 0.22) 34deg, transparent 70deg);
+  animation: radar-spin 8s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes radar-spin {
+  to {
+    transform: rotate(360deg);
   }
 }

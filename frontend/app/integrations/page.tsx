@@ -1,6 +1,7 @@
 import { AppShell } from "@/components/dashboard/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { SectionHeader } from "@/components/ui/section-header";
 
 const integrations = [
   ["sample_csv_parser", "Local CSV parser for synthetic radar datasets", ".csv"],
@@ -12,10 +13,7 @@ export default function IntegrationsPage() {
   return (
     <AppShell>
       <div className="space-y-5">
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Custom Integrations</h1>
-          <p className="mt-1 text-sm text-slate-400">Local parser and model registries for offline experimentation.</p>
-        </div>
+        <SectionHeader title="Custom Integrations" description="Local parser and model registries for offline experimentation." />
         <div className="grid gap-4 lg:grid-cols-3">
           {integrations.map(([name, description, type]) => (
             <Card key={name}>

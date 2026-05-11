@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 
 export function ThemeStatus() {
   return (
-    <Badge className="border-slate-600 bg-slate-900 text-slate-200">
+    <Badge className="border-border bg-muted text-muted-foreground">
       <Moon size={14} />
       Dark console
     </Badge>

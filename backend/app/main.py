@@ -29,7 +29,8 @@ def health() -> dict[str, str]:
 
 app.include_router(auth_routes.router, prefix="/api/auth", tags=["auth"])
 app.include_router(simulation_routes.router, prefix="/api/simulation", tags=["simulation"])
-app.include_router(dataset_routes.router, prefix="/api/datasets", tags=["datasets"])
+app.include_router(dataset_routes.legacy_router, prefix="/api/datasets", tags=["datasets"])
+app.include_router(dataset_routes.router, prefix="/api/dataset", tags=["dataset"])
 app.include_router(model_routes.router, prefix="/api/models", tags=["models"])
 app.include_router(integration_routes.router, prefix="/api/integrations", tags=["integrations"])
 app.add_api_websocket_route("/ws/simulation", simulation_routes.simulation_websocket)

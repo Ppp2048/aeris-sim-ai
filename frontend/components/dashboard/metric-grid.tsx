@@ -1,5 +1,5 @@
 import { Activity, Crosshair, RadioTower, ScanSearch } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { MetricCard } from "@/components/ui/metric-card";
 import type { SimulationResponse } from "@/lib/types";
 
 export function MetricGrid({ data }: { data: SimulationResponse | null }) {
@@ -13,17 +13,8 @@ export function MetricGrid({ data }: { data: SimulationResponse | null }) {
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       {metrics.map((metric) => {
-        const Icon = metric.icon;
         return (
-          <Card key={metric.label}>
-            <CardContent className="flex items-center justify-between">
-              <div>
-                <div className="text-xs uppercase tracking-[0.18em] text-slate-500">{metric.label}</div>
-                <div className="mt-2 text-2xl font-semibold text-white">{metric.value}</div>
-              </div>
-              <Icon className={metric.tone} size={28} />
-            </CardContent>
-          </Card>
+          <MetricCard key={metric.label} label={metric.label} value={metric.value} icon={metric.icon} tone={metric.tone} />
         );
       })}
     </div>

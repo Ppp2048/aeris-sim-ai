@@ -7,12 +7,12 @@ export function DetectionTable({ detections }: { detections: Detection[] }) {
     <Card>
       <CardHeader>
         <CardTitle>CFAR Detections</CardTitle>
-        <span className="text-xs text-slate-400">{detections.length} active tracks</span>
+        <span className="text-xs text-muted-foreground">{detections.length} active tracks</span>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[620px] text-left text-sm">
-            <thead className="text-xs uppercase tracking-[0.14em] text-slate-500">
+            <thead className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
               <tr>
                 <th className="pb-3">Track</th>
                 <th className="pb-3">Class</th>
@@ -22,10 +22,10 @@ export function DetectionTable({ detections }: { detections: Detection[] }) {
                 <th className="pb-3">Confidence</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800">
+            <tbody className="divide-y divide-border">
               {detections.map((item) => (
-                <tr key={`${item.track_id}-${item.range_m}-${item.velocity_mps}`} className="text-slate-300">
-                  <td className="py-3 text-white">#{item.track_id}</td>
+                <tr key={`${item.track_id}-${item.range_m}-${item.velocity_mps}`} className="text-muted-foreground">
+                  <td className="py-3 text-foreground">#{item.track_id}</td>
                   <td className="py-3">
                     <Badge>{item.classification}</Badge>
                   </td>
@@ -37,7 +37,7 @@ export function DetectionTable({ detections }: { detections: Detection[] }) {
               ))}
             </tbody>
           </table>
-          {detections.length === 0 && <div className="py-8 text-center text-slate-500">No detections yet.</div>}
+          {detections.length === 0 && <div className="py-8 text-center text-muted-foreground">No detections yet.</div>}
         </div>
       </CardContent>
     </Card>

@@ -11,7 +11,7 @@ export function HeatmapPanel({ data }: { data: SimulationResponse | null }) {
     <Card className="min-h-[430px]">
       <CardHeader>
         <CardTitle>Range-Doppler Heatmap</CardTitle>
-        <span className="text-xs text-slate-400">Synthetic power field</span>
+        <span className="text-xs text-muted-foreground">Synthetic power field</span>
       </CardHeader>
       <CardContent>
         {data ? (
@@ -45,7 +45,7 @@ export function HeatmapPanel({ data }: { data: SimulationResponse | null }) {
             className="w-full"
           />
         ) : (
-          <div className="flex h-[350px] items-center justify-center rounded-lg border border-slate-800 bg-slate-950 text-slate-500">
+          <div className="flex h-[350px] items-center justify-center rounded-lg border border-border bg-muted/45 text-muted-foreground">
             Run a synthetic sweep to render the heatmap.
           </div>
         )}

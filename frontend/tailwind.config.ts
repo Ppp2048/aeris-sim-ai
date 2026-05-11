@@ -13,9 +13,13 @@ const config: Config = {
         border: "hsl(var(--border))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        panel: "hsl(var(--panel))",
+        "panel-foreground": "hsl(var(--panel-foreground))",
         primary: "hsl(var(--primary))",
         accent: "hsl(var(--accent))",
-        muted: "hsl(var(--muted))"
+        danger: "hsl(var(--danger))",
+        muted: "hsl(var(--muted))",
+        "muted-foreground": "hsl(var(--muted-foreground))"
       },
       boxShadow: {
         glow: "0 0 40px rgba(34, 211, 238, 0.18)"

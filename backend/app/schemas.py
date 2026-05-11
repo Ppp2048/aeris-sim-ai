@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 UserRole = Literal["admin", "analyst", "researcher"]
 ObjectLabel = Literal["drone", "bird", "vehicle", "human", "clutter", "unknown"]
+DatasetClass = Literal["drone", "bird", "vehicle", "human", "clutter"]
 LocalEmail = str
 
 
@@ -138,6 +139,39 @@ class DatasetResponse(BaseModel):
     name: str
     sample_count: int
     path: str
+
+
+class SyntheticDatasetGenerateRequest(BaseModel):
+    name: str = "aeris-synthetic-radar"
+    samples_per_class: int = Field(default=25, ge=1, le=1000)
+    class_counts: dict[DatasetClass, int] | None = None
+    classes: list[DatasetClass] = Field(default_factory=lambda: ["drone", "bird", "vehicle", "human", "clutter"])
+    range_bins: int = Field(default=128, ge=32, le=256)
+    doppler_bins: int = Field(default=128, ge=32, le=256)
+    radar_range_m: float = Field(default=3000, gt=100, le=20000)
+    max_velocity_mps: float = Field(default=120, gt=10, le=1000)
+    noise_level: float = Field(default=0.08, ge=0.0, le=2.0)
+    clutter_level: float = Field(default=0.035, ge=0.0, le=0.5)
+
+
+class SyntheticDatasetSummary(BaseModel):
+    dataset_id: str
+    name: str
+    created_at: str
+    classes: list[str]
+    total_samples: int
+    samples_per_class: dict[str, int]
+    path: str
+
+
+class SyntheticSampleResponse(BaseModel):
+    dataset_id: str
+    sample_id: int
+    metadata: dict[str, float | int | str]
+    heatmap_shape: list[int]
+    heatmap_preview: list[list[float]]
+    npy_path: str
+    preview_png_path: str | None = None
 
 
 class ModelStatus(BaseModel):
