@@ -1,6 +1,6 @@
 import asyncio
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 
 from app.schemas import (
     SceneConfig,
@@ -9,8 +9,12 @@ from app.schemas import (
     SimulationRequest,
     SimulationResponse,
     SimulationStatusResponse,
+    ReplayDeleteResponse,
+    ReplayDetail,
+    ReplaySummary,
 )
 from app.services.radar_simulator import run_simulation_pipeline
+from app.services.replay_service import delete_replay, get_replay, list_replays
 from app.services.simulation_manager import simulation_manager
 
 
@@ -50,6 +54,27 @@ def configure_scene(payload: SceneConfig) -> dict:
 @router.get("/current-frame", response_model=SimulationFrameResponse)
 def current_frame() -> dict:
     return simulation_manager.get_current_frame()
+
+
+@router.get("/replays", response_model=list[ReplaySummary])
+def simulation_replays() -> list[ReplaySummary]:
+    return list_replays()
+
+
+@router.get("/replays/{replay_id}", response_model=ReplayDetail)
+def simulation_replay(replay_id: str) -> ReplayDetail:
+    try:
+        return get_replay(replay_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=f"Replay not found: {replay_id}") from exc
+
+
+@router.delete("/replays/{replay_id}", response_model=ReplayDeleteResponse)
+def remove_simulation_replay(replay_id: str) -> ReplayDeleteResponse:
+    try:
+        return delete_replay(replay_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=f"Replay not found: {replay_id}") from exc
 
 
 @router.websocket("/stream")

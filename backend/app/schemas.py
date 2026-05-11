@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -129,6 +129,34 @@ class SimulationFrameResponse(BaseModel):
     stats: dict[str, float | int]
 
 
+class ReplayAnalytics(BaseModel):
+    total_frames: int
+    total_detections: int
+    max_confidence: float
+    number_of_alerts: int
+    longest_track_duration: int
+    predicted_class_distribution: dict[str, int]
+
+
+class ReplaySummary(BaseModel):
+    replay_id: str
+    filename: str
+    created_at: str
+    size_bytes: int
+    frame_count: int
+    analytics: ReplayAnalytics
+
+
+class ReplayDetail(ReplaySummary):
+    frames: list[dict[str, Any]]
+
+
+class ReplayDeleteResponse(BaseModel):
+    replay_id: str
+    deleted: bool
+    message: str
+
+
 class DatasetRequest(BaseModel):
     name: str = "synthetic-radar-dataset"
     samples: int = Field(default=250, ge=10, le=5000)
@@ -241,3 +269,57 @@ class ParserInfo(BaseModel):
     name: str
     description: str
     supported_extensions: list[str]
+
+
+class IntegrationUploadResponse(BaseModel):
+    file_id: str
+    filename: str
+    path: str
+    columns: list[str]
+    row_count: int
+    preview_rows: list[dict[str, str]]
+    accepted_formats: list[str]
+    warnings: list[str]
+
+
+class IntegrationColumnMapping(BaseModel):
+    range_m: str | None = None
+    velocity_mps: str | None = None
+    angle_deg: str | None = None
+    amplitude: str | None = None
+    timestamp: str | None = None
+    class_label: str | None = None
+
+
+class IntegrationParseRequest(BaseModel):
+    file_id: str
+    parser_name: str = "sample_csv_parser"
+    column_mapping: IntegrationColumnMapping
+
+
+class IntegrationParseResponse(BaseModel):
+    file_id: str
+    parser_name: str
+    mapped_rows: list[dict[str, float | str | None]]
+    row_count: int
+    heatmap_preview: list[list[float]] | None = None
+    warnings: list[str]
+
+
+class ModelAdapterRequest(BaseModel):
+    model_name: str = Field(min_length=1, max_length=120)
+    model_type: str = Field(min_length=1, max_length=80)
+    expected_input_shape: str = Field(min_length=1, max_length=80)
+    classes: list[str] = Field(default_factory=list)
+    notes: str = Field(default="", max_length=2000)
+
+
+class ModelAdapterResponse(BaseModel):
+    adapter_id: str
+    model_name: str
+    model_type: str
+    expected_input_shape: str
+    classes: list[str]
+    notes: str
+    created_at: str
+    path: str
