@@ -247,3 +247,13 @@ frontend/.next/
 frontend/.env.local
 __pycache__/
 *.pyc
+
+
+# AERIS-Sim AI local generated runtime data
+backend/app/data/aeris.db
+backend/app/data/datasets/
+backend/app/data/integrations/
+backend/app/data/models/
+backend/app/data/replays/
+
+.local-backup/
