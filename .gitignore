@@ -57,6 +57,7 @@ cover/
 
 # Django stuff:
 *.log
+*.pid
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -216,3 +217,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tsbuildinfo
+
+# Local runtime artifacts
+backend/.venv/
+frontend/.env.local
+backend/app/data/datasets/*.csv
+backend/app/data/models/*.txt
+backend/app/data/replays/*.json
