@@ -18,7 +18,7 @@ import {
   Wand2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GlassCard } from "@/components/ui/glass-card";
+import { PremiumCard } from "@/components/ui/premium-card";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -237,7 +237,7 @@ function UploadRadarDataCard({
   onFile: (event: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={FileUp} title="Upload Radar Data" detail="CSV ingest" />
       <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-primary/40 bg-primary/5 p-8 text-center transition hover:bg-primary/10">
         {busy ? <Loader2 className="animate-spin text-primary" size={32} /> : <UploadCloud className="text-primary" size={34} />}
@@ -250,7 +250,7 @@ function UploadRadarDataCard({
         <MetaPill label="Rows" value={upload ? String(upload.row_count) : "0"} />
         <MetaPill label="Columns" value={upload ? String(upload.columns.length) : "0"} />
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -275,7 +275,7 @@ function ColumnMapperCard({
 }) {
   const columns = upload?.columns ?? [];
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={Wand2} title="Column Mapper" detail="normalize schema" />
       <div className="mt-5">
         <FieldLabel>Parser</FieldLabel>
@@ -318,7 +318,7 @@ function ColumnMapperCard({
           Parse
         </NeonButton>
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -333,7 +333,7 @@ function DataPreviewCard({
 }) {
   const columns = Object.keys(rows[0] ?? {});
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={Table2} title="Data Preview" detail={`${rows.length} preview rows`} />
       <div className="mt-5 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="overflow-hidden rounded-lg border border-border">
@@ -365,13 +365,13 @@ function DataPreviewCard({
           <WarningsPanel warnings={warnings} />
         </div>
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
 function ParserRegistryCard({ parsers, busy }: { parsers: ParserInfo[]; busy: boolean }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={PlugZap} title="Parser Registry" detail={`${parsers.length} available`} />
       <div className="mt-4 space-y-3">
         {busy ? (
@@ -400,7 +400,7 @@ function ParserRegistryCard({ parsers, busy }: { parsers: ParserInfo[]; busy: bo
           ))
         )}
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -418,7 +418,7 @@ function CustomModelAdapterCard({
   onSubmit: () => void;
 }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={Binary} title="Custom Model Adapter" detail={`${adapters.length} registered`} />
       <div className="mt-4 rounded-lg border border-amber-400/35 bg-amber-400/10 p-3 text-sm text-amber-200 dark:text-amber-100">
         Arbitrary Python execution is disabled by default. This registry stores metadata only until an operator explicitly builds a safe adapter.
@@ -458,7 +458,7 @@ function CustomModelAdapterCard({
           </div>
         ))}
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -547,7 +547,7 @@ function Toast({ tone, message }: { tone: "success" | "error"; message: string }
   return (
     <div
       className={cn(
-        "fixed right-5 top-5 z-50 flex max-w-sm items-start gap-3 rounded-lg border p-4 text-sm shadow-glow backdrop-blur",
+        "fixed right-5 top-5 z-50 flex max-w-sm items-start gap-3 rounded-lg border p-4 text-sm shadow-lg",
         tone === "success"
           ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100"
           : "border-danger/40 bg-danger/15 text-danger"

@@ -41,22 +41,22 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "border-border text-panel-foreground backdrop-blur-xl",
+        "border-border text-panel-foreground",
         mobile
-          ? "command-surface sticky top-14 z-20 flex gap-2 overflow-x-auto border-b px-4 py-2 lg:hidden"
-          : cn("command-surface fixed left-0 top-0 hidden h-full flex-col border-r p-4 transition-all duration-200 lg:flex", collapsed ? "w-20" : "w-64")
+          ? "command-surface sticky top-[57px] z-20 flex gap-2 overflow-x-auto border-b px-4 py-2 lg:hidden"
+          : cn("command-surface fixed left-0 top-0 z-40 hidden h-screen flex-col border-r p-4 transition-all duration-200 lg:flex", collapsed ? "w-20" : "w-[280px]")
       )}
     >
       {!mobile && (
         <div className="mb-6 flex items-center gap-3">
           <Link href="/" className="flex min-w-0 flex-1 items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/35 bg-primary text-slate-950 shadow-[0_0_34px_hsl(var(--primary)/0.22)]">
-            <Activity size={22} />
-          </div>
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/25 bg-zinc-950 text-primary shadow-[0_0_18px_hsl(var(--primary)/0.12)] dark:bg-zinc-950">
+              <Activity size={22} />
+            </div>
             <div className={cn("min-w-0 transition", collapsed && "hidden")}>
-            <div className="font-semibold text-foreground">AERIS-Sim AI</div>
-            <div className="text-xs text-muted-foreground">Radar digital twin</div>
-          </div>
+              <div className="font-display font-semibold text-foreground">AERIS-Sim AI</div>
+              <div className="text-xs text-muted-foreground">Radar digital twin</div>
+            </div>
           </Link>
           <button
             type="button"
@@ -107,8 +107,8 @@ export function Sidebar({
               key={item.href}
               href={item.href}
               className={cn(
-                "group flex items-center gap-3 rounded-lg border border-transparent px-3 py-2 text-sm text-muted-foreground transition hover:border-border hover:bg-muted/65 hover:text-foreground",
-                active && "border-primary/25 bg-primary/12 text-primary shadow-[inset_3px_0_0_hsl(var(--primary))]",
+                "group flex items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:border-[var(--app-border)] hover:bg-muted/65 hover:text-foreground",
+                active && "border-[var(--app-border)] bg-muted text-foreground shadow-[inset_3px_0_0_hsl(var(--primary))]",
                 mobile && "whitespace-nowrap",
                 collapsed && !mobile && "justify-center px-2"
               )}

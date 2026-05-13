@@ -21,8 +21,8 @@ import {
   Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GlassCard } from "@/components/ui/glass-card";
-import { NeonButton } from "@/components/ui/neon-button";
+import { PremiumCard } from "@/components/ui/premium-card";
+import { PremiumButton } from "@/components/ui/premium-button";
 import { SectionHeader } from "@/components/ui/section-header";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { deleteSimulationReplay, getSimulationReplay, listSimulationReplays } from "@/lib/api";
@@ -121,7 +121,7 @@ export function ReplayVault() {
   const enrichedTracks = useMemo(() => enrichTracks(frame?.tracks ?? [], frame?.detections ?? [], frame?.objects ?? []), [frame]);
 
   return (
-    <div className="space-y-5">
+    <div className="w-full min-w-0 space-y-5 overflow-x-hidden">
       <SectionHeader
         title="Mission Replay Vault"
         description="Load saved simulation runs once, scrub locally, and review detections, tracks, heatmaps, and alerts frame by frame."
@@ -140,8 +140,8 @@ export function ReplayVault() {
 
       {error && <div className="rounded-lg border border-danger/40 bg-danger/10 p-3 text-sm text-danger">{error}</div>}
 
-      <div className="grid gap-5 xl:grid-cols-[0.82fr_1.18fr]">
-        <div className="space-y-5">
+      <div className="grid min-w-0 grid-cols-1 gap-6 2xl:grid-cols-[380px_minmax(0,1fr)]">
+        <div className="grid min-w-0 gap-5 lg:grid-cols-3 2xl:block 2xl:space-y-5">
           <ReplayList
             replays={replays}
             selectedReplayId={selectedReplayId}
@@ -153,7 +153,7 @@ export function ReplayVault() {
           <ClassDistribution distribution={analytics.predicted_class_distribution} />
         </div>
 
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <PlaybackControls
             frameIndex={frameIndex}
             totalFrames={selectedReplay?.frames.length ?? 0}
@@ -168,13 +168,13 @@ export function ReplayVault() {
             }
           />
 
-          <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
-            <RadarReplayPanel frame={frame} />
+          <div className="grid min-w-0 grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,1fr)_420px]">
             <HeatmapReplayPanel frame={frame} />
+            <ReplayDetections detections={frame?.detections ?? []} tracks={enrichedTracks} />
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-            <ReplayDetections detections={frame?.detections ?? []} tracks={enrichedTracks} />
+          <div className="grid min-w-0 grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,1fr)_420px]">
+            <RadarReplayPanel frame={frame} />
             <ReplayAlerts alerts={frame?.alerts ?? []} frameId={frame?.frame_id ?? 0} />
           </div>
         </div>
@@ -197,7 +197,7 @@ function ReplayList({
   onDelete: (replayId: string) => void;
 }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={Database} title="Saved Simulation Runs" detail={`${replays.length} runs`} />
       <div className="mt-4 space-y-3">
         {loading ? (
@@ -223,10 +223,10 @@ function ReplayList({
                   <Trash2 size={16} />
                 </Button>
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                <span className="rounded-md bg-panel px-2 py-1">{replay.frame_count} frames</span>
-                <span className="rounded-md bg-panel px-2 py-1">{replay.analytics.total_detections} detections</span>
-                <span className="rounded-md bg-panel px-2 py-1">{formatBytes(replay.size_bytes)}</span>
+              <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-muted-foreground sm:grid-cols-3">
+                <span className="truncate rounded-md bg-panel px-2 py-1">{replay.frame_count} frames</span>
+                <span className="truncate rounded-md bg-panel px-2 py-1">{replay.analytics.total_detections} detections</span>
+                <span className="truncate rounded-md bg-panel px-2 py-1">{formatBytes(replay.size_bytes)}</span>
               </div>
             </div>
           ))
@@ -236,7 +236,7 @@ function ReplayList({
           </div>
         )}
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -263,12 +263,12 @@ function PlaybackControls({
 }) {
   const disabled = loading || totalFrames === 0;
   return (
-    <GlassCard>
+    <PremiumCard>
       <div className="flex flex-wrap items-center gap-3">
-        <NeonButton onClick={onPlay} disabled={disabled}>
+        <PremiumButton onClick={onPlay} disabled={disabled}>
           {playing ? <Pause size={17} /> : <Play size={17} />}
           {playing ? "Pause" : "Play"}
-        </NeonButton>
+        </PremiumButton>
         <Button variant="secondary" onClick={() => onStep(-1)} disabled={disabled}>
           <SkipBack size={17} />
           Prev
@@ -277,7 +277,7 @@ function PlaybackControls({
           <SkipForward size={17} />
           Next
         </Button>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 lg:ml-auto">
           {SPEEDS.map((item) => (
             <button
               key={item}
@@ -309,14 +309,14 @@ function PlaybackControls({
           className="h-2 w-full cursor-pointer appearance-none rounded-full bg-muted accent-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
         />
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
 function RadarReplayPanel({ frame }: { frame: SimulationFrame | null }) {
   const objects = frame?.objects ?? [];
   return (
-    <GlassCard className="overflow-hidden">
+    <PremiumCard className="w-full min-w-0 overflow-hidden">
       <PanelTitle icon={Radar} title="Radar Sweep" detail={frame ? `frame ${frame.frame_id}` : "waiting"} />
       <div className="relative mx-auto mt-4 aspect-square max-h-[390px] rounded-full border border-primary/30 bg-muted/25">
         <div className="absolute inset-[12%] rounded-full border border-border" />
@@ -330,7 +330,7 @@ function RadarReplayPanel({ frame }: { frame: SimulationFrame | null }) {
           <RadarBlip key={object.id} object={object} />
         ))}
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -389,68 +389,82 @@ function HeatmapReplayPanel({ frame }: { frame: SimulationFrame | null }) {
   }, [frame]);
 
   return (
-    <GlassCard>
+    <PremiumCard className="w-full min-w-0 overflow-hidden">
       <PanelTitle icon={Activity} title="Range-Doppler Heatmap" detail={`${frame?.detections.length ?? 0} detections`} />
-      <canvas ref={canvasRef} width={560} height={390} className="mt-4 h-[340px] w-full rounded-lg border border-border bg-muted/30" />
-    </GlassCard>
+      <canvas ref={canvasRef} width={920} height={420} className="mt-4 h-[420px] min-h-[360px] w-full rounded-lg border border-border bg-muted/30" />
+    </PremiumCard>
   );
 }
 
 function ReplayDetections({ detections, tracks }: { detections: FrameDetection[]; tracks: EnrichedTrack[] }) {
+  const rows = tracks.length
+    ? tracks.map((track) => ({
+        id: `track-${track.track_id}`,
+        track: `#${track.track_id}`,
+        label: track.classification,
+        range: track.range_m,
+        velocity: track.velocity_mps,
+        confidence: track.confidence,
+        status: track.status,
+        isTrack: true
+      }))
+    : detections.map((detection, index) => ({
+        id: `detection-${detection.range_bin}-${detection.doppler_bin}-${index}`,
+        track: "-",
+        label: detection.classification,
+        range: detection.estimated_range_m,
+        velocity: detection.estimated_velocity_mps,
+        confidence: detection.confidence,
+        status: "detection",
+        isTrack: false
+      }));
+
   return (
-    <GlassCard>
+    <PremiumCard className="w-full min-w-0 overflow-hidden">
       <PanelTitle icon={Target} title="Detections & Tracks" detail={`${tracks.length} tracks`} />
-      <div className="mt-4 max-h-[330px] overflow-auto rounded-lg border border-border">
-        <table className="w-full min-w-[760px] text-left text-sm">
-          <thead className="sticky top-0 bg-panel text-xs uppercase tracking-[0.12em] text-muted-foreground">
-            <tr>
-              <th className="p-3">Track</th>
-              <th className="p-3">Class</th>
-              <th className="p-3">Range</th>
-              <th className="p-3">Velocity</th>
-              <th className="p-3">Confidence</th>
-              <th className="p-3">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {tracks.length ? (
-              tracks.map((track) => (
-                <tr key={track.track_id} className="text-muted-foreground">
-                  <td className="p-3 font-medium text-foreground">#{track.track_id}</td>
-                  <td className="p-3 capitalize">{track.classification}</td>
-                  <td className="p-3">{track.range_m.toFixed(1)} m</td>
-                  <td className="p-3">{track.velocity_mps.toFixed(1)} m/s</td>
-                  <td className="p-3">{Math.round(track.confidence * 100)}%</td>
-                  <td className="p-3">
-                    <StatusBadge tone={track.status === "lost" ? "danger" : track.status === "locked" ? "online" : "neutral"}>
-                      {track.status}
-                    </StatusBadge>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              detections.map((detection, index) => (
-                <tr key={`${detection.range_bin}-${detection.doppler_bin}-${index}`} className="text-muted-foreground">
-                  <td className="p-3 font-medium text-foreground">-</td>
-                  <td className="p-3 capitalize">{detection.classification}</td>
-                  <td className="p-3">{detection.estimated_range_m.toFixed(1)} m</td>
-                  <td className="p-3">{detection.estimated_velocity_mps.toFixed(1)} m/s</td>
-                  <td className="p-3">{Math.round(detection.confidence * 100)}%</td>
-                  <td className="p-3">detection</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="mt-4 max-h-[420px] space-y-3 overflow-y-auto overflow-x-hidden pr-1">
+        {rows.length ? (
+          rows.map((row) => (
+            <div key={row.id} className="rounded-lg border border-border bg-muted/30 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="font-mono text-sm font-semibold text-foreground">{row.track}</div>
+                  <div className="truncate text-xs capitalize text-muted-foreground">{row.label}</div>
+                </div>
+                <StatusBadge tone={row.status === "lost" ? "danger" : row.status === "locked" ? "online" : row.isTrack ? "neutral" : "warning"}>
+                  {row.status}
+                </StatusBadge>
+              </div>
+              <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+                <Telemetry label="Range" value={`${row.range.toFixed(1)} m`} />
+                <Telemetry label="Velocity" value={`${row.velocity.toFixed(1)} m/s`} />
+                <Telemetry label="Confidence" value={`${Math.round(row.confidence * 100)}%`} />
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="rounded-lg border border-border bg-muted/30 p-6 text-center text-sm text-muted-foreground">
+            No detections or tracks in this frame.
+          </div>
+        )}
       </div>
-    </GlassCard>
+    </PremiumCard>
+  );
+}
+
+function Telemetry({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-md bg-panel/80 px-2 py-1.5">
+      <div className="truncate text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{label}</div>
+      <div className="mt-1 truncate font-mono text-foreground">{value}</div>
+    </div>
   );
 }
 
 function ReplayAlerts({ alerts, frameId }: { alerts: string[]; frameId: number }) {
   const rows = alerts.length ? alerts : ["system_nominal"];
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={ShieldAlert} title="Alerts" detail={`frame ${frameId}`} />
       <div className="mt-4 space-y-3">
         {rows.map((alert) => {
@@ -466,7 +480,7 @@ function ReplayAlerts({ alerts, frameId }: { alerts: string[]; frameId: number }
           );
         })}
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -479,7 +493,7 @@ function AnalyticsSummary({ analytics }: { analytics: ReplayDetail["analytics"] 
     { label: "Longest Track", value: `${analytics.longest_track_duration} frames`, icon: Target }
   ];
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={BarChart3} title="Analytics Summary" detail="mission rollup" />
       <div className="mt-4 grid grid-cols-2 gap-3">
         {metrics.map(({ label, value, icon: Icon }) => (
@@ -492,14 +506,14 @@ function AnalyticsSummary({ analytics }: { analytics: ReplayDetail["analytics"] 
           </div>
         ))}
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
 function ClassDistribution({ distribution }: { distribution: Record<string, number> }) {
   const total = Object.values(distribution).reduce((sum, value) => sum + value, 0);
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={Activity} title="Class Distribution" detail={`${total} classified detections`} />
       <div className="mt-4 space-y-3">
         {Object.entries(distribution).length ? (
@@ -518,7 +532,7 @@ function ClassDistribution({ distribution }: { distribution: Record<string, numb
           <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm text-muted-foreground">No classified detections yet.</div>
         )}
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 

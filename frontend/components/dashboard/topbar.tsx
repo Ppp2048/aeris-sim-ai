@@ -35,14 +35,14 @@ export function Topbar({ user }: { user: User | null }) {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-panel/78 px-4 py-3 backdrop-blur-xl lg:px-8">
-      <div className="flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-30 border-b border-[var(--app-border)] bg-background/95 px-4 py-3 lg:px-8">
+      <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-4">
         <Link href="/dashboard" className="flex items-center gap-2 text-sm font-semibold text-foreground lg:hidden">
           <Radar size={18} />
           AERIS
         </Link>
         <div className="hidden min-w-0 lg:block">
-          <div className="text-sm font-semibold text-foreground">Synthetic radar operations console</div>
+          <div className="font-display text-sm font-semibold text-foreground">Synthetic radar operations console</div>
           <div className="text-xs text-muted-foreground">Local command center for simulation, tracking, and replay review</div>
         </div>
         <div className="flex items-center gap-2">

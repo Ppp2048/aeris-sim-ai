@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { AppBackground } from "@/components/ui/app-background";
 import { LoadingPulse } from "@/components/ui/loading-pulse";
-import { RadarGridBackground } from "@/components/ui/radar-grid-background";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Topbar } from "@/components/dashboard/topbar";
 import { clearToken, readToken } from "@/lib/auth";
@@ -73,8 +72,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   if (checking) {
     return (
-      <main className="min-h-screen">
-        <RadarGridBackground />
+      <main className="relative min-h-screen overflow-x-hidden bg-background">
+        <AppBackground />
         <div className="mx-auto flex min-h-screen max-w-xl items-center p-6">
           <LoadingPulse className="w-full" />
         </div>
@@ -83,22 +82,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <main className="min-h-screen">
-      <RadarGridBackground />
+    <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
+      <AppBackground />
       <Sidebar collapsed={sidebarCollapsed} onToggle={toggleSidebar} />
-      <div className={sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"}>
+      <div className={sidebarCollapsed ? "relative z-10 min-h-screen lg:pl-20" : "relative z-10 min-h-screen lg:pl-[280px]"}>
         <Topbar user={user} />
         <Sidebar mobile />
-        <motion.section
+        <main
           key={pathname}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.22, ease: "easeOut" }}
-          className="p-4 lg:p-8"
+          className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-6 lg:px-8"
         >
           {children}
-        </motion.section>
+        </main>
       </div>
-    </main>
+    </div>
   );
 }

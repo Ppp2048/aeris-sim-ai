@@ -19,11 +19,13 @@ import {
   Sparkles,
   Target
 } from "lucide-react";
+import { ContainerScroll } from "@/components/landing/container-scroll";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { AppBackground } from "@/components/ui/app-background";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { GlassCard } from "@/components/ui/glass-card";
-import { NeonButton } from "@/components/ui/neon-button";
+import { PremiumCard } from "@/components/ui/premium-card";
+import { PremiumButton } from "@/components/ui/premium-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { cn } from "@/lib/utils";
 
@@ -86,8 +88,7 @@ const heatmapCells = Array.from({ length: 160 }, (_, index) => {
 export function LandingPage() {
   return (
     <main className="min-h-screen overflow-hidden bg-background text-foreground">
-      <div className="pointer-events-none fixed inset-0 -z-10 radar-grid radar-grid-animated" />
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_18%_16%,hsl(var(--primary)/0.18),transparent_28rem),radial-gradient(circle_at_82%_12%,hsl(var(--accent)/0.14),transparent_24rem)]" />
+      <AppBackground />
 
       <header className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
@@ -120,15 +121,15 @@ export function LandingPage() {
             Software Digital Twin for Radar Detection, Drone Tracking, and AI Classification
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <NeonButton asChild>
+            <PremiumButton asChild>
               <Link href="/dashboard">
                 Launch Dashboard
                 <ArrowRight size={18} />
               </Link>
-            </NeonButton>
-            <Button variant="secondary" asChild>
+            </PremiumButton>
+            <PremiumButton variant="secondary" asChild>
               <Link href="/simulator">View Simulator</Link>
-            </Button>
+            </PremiumButton>
           </div>
           <div className="mt-8 grid max-w-xl gap-3 sm:grid-cols-3">
             {[
@@ -136,7 +137,7 @@ export function LandingPage() {
               ["CA-CFAR", "Detection"],
               ["JSONL", "Replays"]
             ].map(([value, label]) => (
-              <div key={label} className="rounded-xl border border-border bg-panel/70 p-3 backdrop-blur transition hover:border-primary/35 hover:bg-panel/85">
+              <div key={label} className="rounded-xl border border-border bg-panel/70 p-3 transition-colors hover:border-primary/35 hover:bg-panel/85">
                 <div className="text-lg font-semibold text-foreground">{value}</div>
                 <div className="text-xs text-muted-foreground">{label}</div>
               </div>
@@ -178,21 +179,25 @@ export function LandingPage() {
                 transition={{ duration: 0.35, delay: index * 0.035 }}
                 className={cn(feature.className)}
               >
-                <GlassCard className="h-full min-h-44 transition-transform hover:-translate-y-1 hover:border-primary/45">
+                <PremiumCard className="h-full min-h-44 transition-transform hover:-translate-y-0.5 hover:border-primary/35">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/12 text-primary">
                     <Icon size={21} />
                   </div>
                   <h3 className="mt-5 text-base font-semibold text-foreground">{feature.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">{feature.description}</p>
-                </GlassCard>
+                </PremiumCard>
               </motion.div>
             );
           })}
         </div>
       </AnimatedSection>
 
+      <ContainerScroll title="Command-center visibility without the weight" eyebrow="Dashboard preview">
+        <LandingDashboardPreview />
+      </ContainerScroll>
+
       <AnimatedSection className="mx-auto grid max-w-7xl gap-5 px-4 py-10 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
-        <GlassCard className="overflow-hidden p-0">
+        <PremiumCard className="overflow-hidden p-0">
           <div className="border-b border-border px-5 py-4">
             <SectionEyebrow icon={Radar} label="Live Preview" />
             <h2 className="mt-2 text-2xl font-semibold text-foreground">Mock radar operations screen</h2>
@@ -201,12 +206,12 @@ export function LandingPage() {
             <MockRadarScreen />
             <MockHeatmap />
           </div>
-        </GlassCard>
+        </PremiumCard>
         <TargetCard />
       </AnimatedSection>
 
       <AnimatedSection className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
-        <GlassCard className="grid gap-6 overflow-hidden p-6 md:grid-cols-[0.85fr_1.15fr] md:p-8">
+        <PremiumCard className="grid gap-6 overflow-hidden p-6 md:grid-cols-[0.85fr_1.15fr] md:p-8">
           <div>
             <SectionEyebrow icon={Braces} label="Integration Section" />
             <h2 className="mt-3 text-3xl font-semibold text-foreground">Bring your own radar data and models</h2>
@@ -215,12 +220,12 @@ export function LandingPage() {
               frames, then connect CSV-style datasets and custom classifiers when your workflow is ready.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Button variant="secondary" asChild>
+              <PremiumButton variant="secondary" asChild>
                 <Link href="/integrations">Open Integrations</Link>
-              </Button>
-              <Button variant="ghost" asChild>
+              </PremiumButton>
+              <PremiumButton variant="ghost" asChild>
                 <Link href="/classifier">Model Lab</Link>
-              </Button>
+              </PremiumButton>
             </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
@@ -239,7 +244,7 @@ export function LandingPage() {
               );
             })}
           </div>
-        </GlassCard>
+        </PremiumCard>
       </AnimatedSection>
 
       <footer className="mx-auto flex max-w-7xl flex-col justify-between gap-3 border-t border-border px-4 py-7 text-sm text-muted-foreground md:flex-row lg:px-8">
@@ -292,7 +297,7 @@ function HeroRadarVisual() {
   ];
 
   return (
-    <GlassCard className="relative min-h-[480px] overflow-hidden p-5 lg:min-h-[560px]">
+    <PremiumCard className="relative min-h-[480px] overflow-hidden p-5 lg:min-h-[560px]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,hsl(var(--primary)/0.2),transparent_18rem)]" />
       <div className="relative mx-auto mt-4 aspect-square max-h-[470px] w-full max-w-[470px] rounded-full border border-primary/25 bg-muted/20">
         <div className="absolute inset-[8%] rounded-full border border-border" />
@@ -316,7 +321,7 @@ function HeroRadarVisual() {
         <StatusBadge tone="warning">CFAR armed</StatusBadge>
         <StatusBadge tone="neutral">Local replay</StatusBadge>
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -360,10 +365,62 @@ function MockHeatmap() {
   );
 }
 
+function LandingDashboardPreview() {
+  return (
+    <div className="grid gap-0 bg-background text-foreground md:grid-cols-[220px_1fr]">
+      <div className="hidden border-r border-border bg-panel/90 p-4 md:block">
+        <div className="mb-5 flex items-center gap-2">
+          <div className="h-9 w-9 rounded-lg border border-primary/30 bg-primary/15" />
+          <div>
+            <div className="h-2.5 w-24 rounded bg-foreground/80" />
+            <div className="mt-2 h-2 w-16 rounded bg-muted-foreground/45" />
+          </div>
+        </div>
+        {["Dashboard", "Simulator", "Classifier", "Replays"].map((item, index) => (
+          <div
+            key={item}
+            className={cn(
+              "mb-2 rounded-lg border px-3 py-2 text-xs",
+              index === 0 ? "border-primary/35 bg-primary/10 text-foreground" : "border-border bg-muted/25 text-muted-foreground"
+            )}
+          >
+            {item}
+          </div>
+        ))}
+      </div>
+      <div className="min-w-0 p-4 md:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="h-4 w-56 rounded bg-foreground/85" />
+            <div className="mt-3 h-2.5 w-72 max-w-full rounded bg-muted-foreground/45" />
+          </div>
+          <StatusBadge tone="online">WebSocket live</StatusBadge>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          {[
+            ["4.0", "FPS"],
+            ["5", "Tracks"],
+            ["94%", "Confidence"]
+          ].map(([value, label]) => (
+            <div key={label} className="rounded-xl border border-border bg-muted/35 p-4">
+              <div className="font-mono text-2xl font-semibold">{value}</div>
+              <div className="mt-1 text-xs uppercase tracking-[0.16em] text-muted-foreground">{label}</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-5 grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
+          <MockRadarScreen />
+          <MockHeatmap />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TargetCard() {
   return (
-    <GlassCard className="relative overflow-hidden">
-      <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-danger/10 blur-3xl" />
+    <PremiumCard className="relative overflow-hidden">
+      <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-danger/10" />
       <SectionEyebrow icon={Target} label="Target card" />
       <div className="mt-5 flex items-center justify-between gap-4">
         <div>
@@ -388,6 +445,6 @@ function TargetCard() {
       <div className="mt-5 rounded-lg border border-danger/30 bg-danger/10 p-4 text-sm text-danger">
         Drone detected with high confidence inside monitored airspace.
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }

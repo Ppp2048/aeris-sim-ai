@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
-import type { Data, Layout } from "plotly.js";
 import {
   AlertTriangle,
   Activity,
@@ -20,8 +19,9 @@ import {
   WifiOff
 } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
-import { GlassCard } from "@/components/ui/glass-card";
 import { MetricCard } from "@/components/ui/metric-card";
+import { PremiumCard } from "@/components/ui/premium-card";
+import { PremiumTable, PremiumTableCell, PremiumTableHead, PremiumTableRow } from "@/components/ui/premium-table";
 import { SectionHeader } from "@/components/ui/section-header";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Toast } from "@/components/ui/toast";
@@ -31,6 +31,8 @@ import type { FrameDetection, SceneObject, SimulationFrame, Track } from "@/lib/
 import { cn } from "@/lib/utils";
 
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
+type PlotDatum = Record<string, unknown>;
+type PlotLayout = Record<string, unknown>;
 
 const RADAR_RANGE_M = 3000;
 const MAX_VELOCITY_MPS = 120;
@@ -153,7 +155,7 @@ export function MonitoringDashboard() {
       />
 
       {demoMode && (
-        <GlassCard className="flex flex-col gap-3 border-amber-400/35 bg-amber-400/10 p-4 text-amber-800 dark:text-amber-100 md:flex-row md:items-center md:justify-between">
+        <PremiumCard className="flex flex-col gap-3 border-amber-400/35 bg-amber-400/10 p-4 text-amber-800 dark:text-amber-100 md:flex-row md:items-center md:justify-between">
           <div className="flex items-start gap-3">
             <WifiOff className="mt-0.5 shrink-0" size={19} />
             <div>
@@ -164,7 +166,7 @@ export function MonitoringDashboard() {
             </div>
           </div>
           <StatusBadge tone="warning">Reconnecting</StatusBadge>
-        </GlassCard>
+        </PremiumCard>
       )}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
@@ -175,25 +177,25 @@ export function MonitoringDashboard() {
         <MetricCard label="Inference" value={`${modelInferenceMs(frame)} ms`} icon={Cpu} tone="text-danger" />
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[1.05fr_1.2fr_0.8fr]">
+      <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)_360px]">
         <RadarSweepPanel objects={frame.objects} detections={frame.detections} />
         <HeatmapPanel frame={frame} />
         <ClassificationPanel detection={primaryDetection} />
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[1.25fr_0.75fr]">
-        <TargetTrackingTable tracks={enrichedTracks} />
+      <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
         <AlertsFeed alerts={frame.alerts} frameId={frame.frame_id} />
+        <MiniMapPanel objects={frame.objects} tracks={enrichedTracks} />
       </div>
 
-      <MiniMapPanel objects={frame.objects} tracks={enrichedTracks} />
+      <TargetTrackingTable tracks={enrichedTracks} />
     </div>
   );
 }
 
 const RadarSweepPanel = memo(function RadarSweepPanel({ objects, detections }: { objects: SceneObject[]; detections: FrameDetection[] }) {
   return (
-    <GlassCard className="overflow-hidden">
+    <PremiumCard className="min-w-0 overflow-hidden">
       <PanelTitle icon={Radar} title="Radar Sweep" detail={`${objects.length} objects`} />
       <div className="relative mx-auto mt-4 aspect-square max-h-[410px] rounded-full border border-primary/30 bg-muted/20">
         <div className="absolute inset-[10%] rounded-full border border-border" />
@@ -212,7 +214,7 @@ const RadarSweepPanel = memo(function RadarSweepPanel({ objects, detections }: {
         <div className="rounded-md bg-muted/45 p-2">Detections {detections.length}</div>
         <div className="rounded-md bg-muted/45 p-2">Zone 300 m</div>
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 });
 
@@ -238,7 +240,7 @@ const RadarBlip = memo(function RadarBlip({ object }: { object: SceneObject }) {
 });
 
 const HeatmapPanel = memo(function HeatmapPanel({ frame }: { frame: SimulationFrame }) {
-  const plotData = useMemo<Data[]>(() => {
+  const plotData = useMemo<PlotDatum[]>(() => {
     const x = frame.heatmap[0]?.map((_, index) => index) ?? [];
     const y = frame.heatmap.map((_, index) => index);
     return [
@@ -269,7 +271,7 @@ const HeatmapPanel = memo(function HeatmapPanel({ frame }: { frame: SimulationFr
     ];
   }, [frame.detections, frame.heatmap]);
 
-  const layout = useMemo<Partial<Layout>>(
+  const layout = useMemo<PlotLayout>(
     () => ({
       autosize: true,
       height: 345,
@@ -285,7 +287,7 @@ const HeatmapPanel = memo(function HeatmapPanel({ frame }: { frame: SimulationFr
   );
 
   return (
-    <GlassCard className="min-h-[430px]">
+    <PremiumCard className="min-w-0 overflow-hidden">
       <PanelTitle icon={Activity} title="Range-Doppler Heatmap" detail={`Frame ${frame.frame_id}`} />
       <Plot
         data={plotData}
@@ -293,7 +295,7 @@ const HeatmapPanel = memo(function HeatmapPanel({ frame }: { frame: SimulationFr
         config={{ displayModeBar: false, responsive: true }}
         className="w-full"
       />
-    </GlassCard>
+    </PremiumCard>
   );
 });
 
@@ -301,7 +303,7 @@ const ClassificationPanel = memo(function ClassificationPanel({ detection }: { d
   const predictions = topPredictions(detection);
   const threat = threatLevel(detection);
   return (
-    <GlassCard>
+    <PremiumCard className="min-w-0">
       <PanelTitle icon={BrainCircuit} title="AI Classification" detail="local model" />
       <div className="mt-5 rounded-lg border border-border bg-muted/35 p-4">
         <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Predicted class</div>
@@ -326,13 +328,13 @@ const ClassificationPanel = memo(function ClassificationPanel({ detection }: { d
         <StatusBadge tone={threat === "High" ? "danger" : threat === "Medium" ? "warning" : "online"}>{threat}</StatusBadge>
       </div>
       <div className="mt-3 text-xs text-muted-foreground">Model status: local classifier online</div>
-    </GlassCard>
+    </PremiumCard>
   );
 });
 
 const TargetTrackingTable = memo(function TargetTrackingTable({ tracks }: { tracks: EnrichedTrack[] }) {
   return (
-    <GlassCard>
+    <PremiumCard className="min-w-0 overflow-hidden">
       <PanelTitle icon={Target} title="Target Tracking Table" detail={`${tracks.length} tracks`} />
       {!tracks.length ? (
         <EmptyState
@@ -343,8 +345,8 @@ const TargetTrackingTable = memo(function TargetTrackingTable({ tracks }: { trac
         />
       ) : (
       <div className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-[760px] border-separate border-spacing-y-2 text-left text-sm">
-          <thead className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+        <PremiumTable className="min-w-[760px]">
+          <PremiumTableHead>
             <tr>
               <th className="px-3 pb-1">Track ID</th>
               <th className="px-3 pb-1">Class</th>
@@ -354,42 +356,42 @@ const TargetTrackingTable = memo(function TargetTrackingTable({ tracks }: { trac
               <th className="px-3 pb-1">Confidence</th>
               <th className="px-3 pb-1">Status</th>
             </tr>
-          </thead>
+          </PremiumTableHead>
           <tbody>
             {tracks.map((track) => (
-              <tr key={track.track_id} className="rounded-lg text-muted-foreground">
-                <td className="rounded-l-lg border-y border-l border-border bg-muted/25 px-3 py-3 font-medium text-foreground">#{track.track_id}</td>
-                <td className="border-y border-border bg-muted/25 px-3 py-3 capitalize">{track.classification}</td>
-                <td className="border-y border-border bg-muted/25 px-3 py-3">{track.range_m.toFixed(1)} m</td>
-                <td className="border-y border-border bg-muted/25 px-3 py-3">{track.velocity_mps.toFixed(1)} m/s</td>
-                <td className="border-y border-border bg-muted/25 px-3 py-3">{track.angle_deg.toFixed(0)} deg</td>
-                <td className="border-y border-border bg-muted/25 px-3 py-3">
+              <PremiumTableRow key={track.track_id}>
+                <PremiumTableCell className="font-medium text-foreground">#{track.track_id}</PremiumTableCell>
+                <PremiumTableCell className="capitalize">{track.classification}</PremiumTableCell>
+                <PremiumTableCell className="font-mono">{track.range_m.toFixed(1)} m</PremiumTableCell>
+                <PremiumTableCell className="font-mono">{track.velocity_mps.toFixed(1)} m/s</PremiumTableCell>
+                <PremiumTableCell className="font-mono">{track.angle_deg.toFixed(0)} deg</PremiumTableCell>
+                <PremiumTableCell>
                   <div className="flex items-center gap-2">
                     <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
                       <div className="h-full rounded-full bg-primary" style={{ width: `${Math.round(track.confidence * 100)}%` }} />
                     </div>
-                    {Math.round(track.confidence * 100)}%
+                    <span className="font-mono">{Math.round(track.confidence * 100)}%</span>
                   </div>
-                </td>
-                <td className="rounded-r-lg border-y border-r border-border bg-muted/25 px-3 py-3">
+                </PremiumTableCell>
+                <PremiumTableCell>
                   <StatusBadge tone={track.status === "lost" ? "danger" : track.status === "locked" ? "online" : "neutral"}>
                     {track.status}
                   </StatusBadge>
-                </td>
-              </tr>
+                </PremiumTableCell>
+              </PremiumTableRow>
             ))}
           </tbody>
-        </table>
+        </PremiumTable>
       </div>
       )}
-    </GlassCard>
+    </PremiumCard>
   );
 });
 
 const AlertsFeed = memo(function AlertsFeed({ alerts, frameId }: { alerts: string[]; frameId: number }) {
   const normalizedAlerts = alerts.length ? alerts : ["system_nominal"];
   return (
-    <GlassCard>
+    <PremiumCard className="min-w-0">
       <PanelTitle icon={ShieldAlert} title="Alerts Feed" detail={`Frame ${frameId}`} />
       <div className="mt-4 space-y-3">
         {normalizedAlerts.map((alert) => {
@@ -405,13 +407,13 @@ const AlertsFeed = memo(function AlertsFeed({ alerts, frameId }: { alerts: strin
           );
         })}
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 });
 
 const MiniMapPanel = memo(function MiniMapPanel({ objects, tracks }: { objects: SceneObject[]; tracks: EnrichedTrack[] }) {
   return (
-    <GlassCard>
+    <PremiumCard className="min-w-0">
       <PanelTitle icon={Map} title="Mini Map / Airspace View" detail={`${objects.length} contacts`} />
       <div className="relative mt-4 h-72 overflow-hidden rounded-lg border border-border bg-muted/30">
         <div className="absolute inset-6 rounded-full border border-danger/35" />
@@ -430,7 +432,7 @@ const MiniMapPanel = memo(function MiniMapPanel({ objects, tracks }: { objects: 
           {tracks.filter((track) => track.status !== "lost").length} locked or active tracks
         </div>
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 });
 

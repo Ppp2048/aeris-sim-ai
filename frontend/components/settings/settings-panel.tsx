@@ -24,7 +24,7 @@ import {
   WifiOff
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GlassCard } from "@/components/ui/glass-card";
+import { PremiumCard } from "@/components/ui/premium-card";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -195,14 +195,14 @@ export function SettingsPanel() {
 
 function ProfileCard({ profile }: { profile: User | null }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={UserCircle2} title="Profile" detail="authenticated operator" />
       <div className="mt-5 grid gap-3">
         <InfoRow label="Name" value={profile?.name ?? "Loading"} />
         <InfoRow label="Email" value={profile?.email ?? "Loading"} />
         <InfoRow label="Role" value={profile?.role ?? "local"} capitalize />
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -223,7 +223,7 @@ function ThemeCard({
     { id: "system", label: "System", icon: Activity }
   ];
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={SlidersHorizontal} title="Theme" detail={mounted ? `resolved ${resolvedTheme ?? value}` : "loading"} />
       <div className="mt-5 grid grid-cols-3 gap-2">
         {options.map(({ id, label, icon: Icon }) => (
@@ -240,7 +240,7 @@ function ThemeCard({
           </button>
         ))}
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -252,7 +252,7 @@ function SimulationDefaultsCard({
   onChange: (key: keyof SimulationDefaults, value: number) => void;
 }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={Radar} title="Simulation Defaults" detail="saved locally" />
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <NumberField label="Radar range" suffix="m" value={values.radar_range_m} min={500} max={20000} step={100} onChange={(value) => onChange("radar_range_m", value)} />
@@ -262,7 +262,7 @@ function SimulationDefaultsCard({
         <SliderField label="Noise level" value={values.noise_level} min={0} max={0.6} step={0.01} onChange={(value) => onChange("noise_level", value)} />
         <SliderField label="Clutter level" value={values.clutter_level} min={0} max={0.4} step={0.01} onChange={(value) => onChange("clutter_level", value)} />
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -280,7 +280,7 @@ function ModelSettingsCard({
   onRefresh: () => Promise<void>;
 }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={BrainCircuit} title="Model Settings" detail={classifier?.trained ? "loaded" : "untrained"} />
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <label className="block">
@@ -312,7 +312,7 @@ function ModelSettingsCard({
           Refresh Model
         </Button>
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -324,7 +324,7 @@ function SafetyScopeCard() {
     "No PCB, STM32, or FPGA implementation"
   ];
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={ShieldAlert} title="Safety and Scope" detail="local digital twin" />
       <div className="mt-5 space-y-3">
         {rows.map((row) => (
@@ -334,7 +334,7 @@ function SafetyScopeCard() {
           </div>
         ))}
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -347,7 +347,7 @@ function DeveloperInfoCard({
 }) {
   const wsUrl = simulationSocketUrl();
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={Code2} title="Developer Info" detail={`v${APP_VERSION}`} />
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <InfoTile icon={ServerCog} label="Backend URL" value={API_BASE} />
@@ -362,7 +362,7 @@ function DeveloperInfoCard({
           Check Socket
         </Button>
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 

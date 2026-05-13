@@ -1,5 +1,14 @@
+import dynamic from "next/dynamic";
 import { AppShell } from "@/components/dashboard/app-shell";
-import { IntegrationsWorkspace } from "@/components/integrations/integrations-workspace";
+import { LoadingPulse } from "@/components/ui/loading-pulse";
+
+const IntegrationsWorkspace = dynamic(
+  () => import("@/components/integrations/integrations-workspace").then((module) => module.IntegrationsWorkspace),
+  {
+    ssr: false,
+    loading: () => <LoadingPulse />
+  }
+);
 
 export default function IntegrationsPage() {
   return (

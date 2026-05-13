@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
 import { AlertCircle, ArrowRight, Eye, EyeOff, LockKeyhole, Radar, ScanLine, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { AppBackground } from "@/components/ui/app-background";
 import { Button } from "@/components/ui/button";
-import { GlassCard } from "@/components/ui/glass-card";
 import { Input } from "@/components/ui/input";
-import { NeonButton } from "@/components/ui/neon-button";
+import { PremiumCard } from "@/components/ui/premium-card";
+import { PremiumButton } from "@/components/ui/premium-button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { checkBackendHealth, login, register } from "@/lib/api";
 import { saveToken } from "@/lib/auth";
@@ -75,8 +75,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background text-foreground">
-      <div className="pointer-events-none absolute inset-0 radar-grid radar-grid-animated" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_24%,hsl(var(--primary)/0.18),transparent_26rem),radial-gradient(circle_at_88%_18%,hsl(var(--accent)/0.12),transparent_24rem)]" />
+      <AppBackground />
 
       <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-4 py-5 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
@@ -94,13 +93,8 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       <section className="relative z-10 mx-auto grid min-h-[calc(100vh-5rem)] max-w-7xl items-center gap-8 px-4 pb-10 lg:grid-cols-[1.04fr_0.96fr] lg:px-8">
         <MissionGraphic />
 
-        <motion.div
-          initial={{ opacity: 0, x: 18 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.42 }}
-          className="w-full"
-        >
-          <GlassCard className="mx-auto w-full max-w-md p-6 md:p-7">
+        <div className="w-full animate-[auth-slide-in_420ms_ease-out_both]">
+          <PremiumCard className="mx-auto w-full max-w-md p-6 md:p-7">
             <div className="mb-6">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-primary/35 bg-primary text-slate-950 shadow-[0_0_30px_hsl(var(--primary)/0.24)]">
                 <LockKeyhole size={23} />
@@ -179,10 +173,10 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
                 </div>
               )}
 
-              <NeonButton className="w-full" type="submit" disabled={loading}>
+              <PremiumButton className="w-full" type="submit" disabled={loading}>
                 {loading ? "Authenticating..." : isLogin ? "Login" : "Register"}
                 <ArrowRight size={18} />
-              </NeonButton>
+              </PremiumButton>
             </form>
 
             <div className="mt-5 text-center text-sm text-muted-foreground">
@@ -191,8 +185,8 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
                 {isLogin ? "Register" : "Login"}
               </Link>
             </div>
-          </GlassCard>
-        </motion.div>
+          </PremiumCard>
+        </div>
       </section>
     </main>
   );
@@ -220,13 +214,8 @@ function MissionGraphic() {
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -18 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.48 }}
-      className="hidden lg:block"
-    >
-      <GlassCard className="relative min-h-[560px] overflow-hidden p-6">
+    <div className="hidden animate-[auth-slide-in-left_480ms_ease-out_both] lg:block">
+      <PremiumCard className="relative min-h-[560px] overflow-hidden p-6">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_48%_44%,hsl(var(--primary)/0.22),transparent_20rem)]" />
         <div className="relative flex items-center justify-between">
           <div>
@@ -269,7 +258,7 @@ function MissionGraphic() {
             </div>
           ))}
         </div>
-      </GlassCard>
-    </motion.div>
+      </PremiumCard>
+    </div>
   );
 }

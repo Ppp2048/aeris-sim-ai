@@ -20,7 +20,7 @@ import {
   TriangleAlert
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GlassCard } from "@/components/ui/glass-card";
+import { PremiumCard } from "@/components/ui/premium-card";
 import { Input } from "@/components/ui/input";
 import { NeonButton } from "@/components/ui/neon-button";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -283,7 +283,7 @@ function DatasetGeneratorCard({
   onGenerate: () => void;
 }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={DatabaseZap} title="Dataset Generator" detail="synthetic .npy heatmaps" />
       <div className="mt-5 grid gap-4 sm:grid-cols-3">
         <NumberField label="Samples / class" value={samplesPerClass} min={1} max={1000} step={1} onChange={onSamplesPerClass} />
@@ -299,7 +299,7 @@ function DatasetGeneratorCard({
           Generate Dataset
         </NeonButton>
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -323,7 +323,7 @@ function TrainingCard({
   onTrain: () => void;
 }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={FlaskConical} title="Model Training" detail="small local classifier" />
       <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_0.75fr]">
         <label className="block">
@@ -365,7 +365,7 @@ function TrainingCard({
           Train
         </Button>
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -388,7 +388,7 @@ function PredictionCard({
 }) {
   const maxSample = dataset?.total_samples ?? 1;
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={ScanLine} title="Prediction" detail="sample inference" />
       <div className="mt-5 grid gap-4 sm:grid-cols-[0.6fr_1fr]">
         <NumberField label="Sample ID" value={sampleId} min={1} max={maxSample} step={1} onChange={(value) => onSampleId(clamp(Math.round(value), 1, maxSample))} />
@@ -419,7 +419,7 @@ function PredictionCard({
           </div>
         </div>
       )}
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -458,7 +458,7 @@ function HeatmapPreview({
   }, [sample]);
 
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={BarChart3} title="Heatmap Preview" detail={sample ? `sample ${sample.sample_id}` : "demo"} />
       {busy ? (
         <div className="mt-4 space-y-3">
@@ -476,7 +476,7 @@ function HeatmapPreview({
           {prediction && <div className="mt-3 text-sm text-muted-foreground">Last inference: {prediction.inference_ms.toFixed(2)} ms</div>}
         </>
       )}
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -490,7 +490,7 @@ function ModelStatusPanel({
   prediction: ClassifierPrediction | null;
 }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={BrainCircuit} title="Model Status" detail={status?.torch_available ? "torch available" : "sklearn mode"} />
       {!status ? (
         <div className="mt-5 space-y-3">
@@ -516,7 +516,7 @@ function ModelStatusPanel({
           </div>
         </div>
       )}
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -530,7 +530,7 @@ function DatasetInventory({
   busy: boolean;
 }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={Layers3} title="Dataset Inventory" detail={`${datasets.length} local datasets`} />
       {busy ? (
         <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -565,7 +565,7 @@ function DatasetInventory({
           No classifier datasets yet. Generate a small default dataset to begin.
         </div>
       )}
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -651,7 +651,7 @@ function Toast({ tone, message }: { tone: "success" | "error"; message: string }
   return (
     <div
       className={cn(
-        "fixed right-5 top-5 z-50 flex max-w-sm items-start gap-3 rounded-lg border p-4 text-sm shadow-glow backdrop-blur",
+        "fixed right-5 top-5 z-50 flex max-w-sm items-start gap-3 rounded-lg border p-4 text-sm shadow-lg",
         tone === "success"
           ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100"
           : "border-danger/40 bg-danger/15 text-danger"

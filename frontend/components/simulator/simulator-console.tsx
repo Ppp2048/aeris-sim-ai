@@ -26,9 +26,9 @@ import {
   Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GlassCard } from "@/components/ui/glass-card";
 import { Input } from "@/components/ui/input";
-import { NeonButton } from "@/components/ui/neon-button";
+import { PremiumCard } from "@/components/ui/premium-card";
+import { PremiumButton } from "@/components/ui/premium-button";
 import { SectionHeader } from "@/components/ui/section-header";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Toast } from "@/components/ui/toast";
@@ -309,57 +309,53 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
         }
       />
 
-      <GlassCard className="p-4">
+      <PremiumCard className="p-4">
         <div className="flex flex-wrap items-center gap-2">
-          <NeonButton onClick={handleStart} disabled={busy || running}>
+          <PremiumButton onClick={handleStart} disabled={busy || running}>
             <Play size={17} />
             Start
-          </NeonButton>
-          <Button variant="secondary" onClick={handleStop} disabled={busy || !running}>
+          </PremiumButton>
+          <PremiumButton variant="secondary" onClick={handleStop} disabled={busy || !running}>
             <Pause size={17} />
             Stop
-          </Button>
-          <Button variant="secondary" onClick={handleStep} disabled={busy || running}>
+          </PremiumButton>
+          <PremiumButton variant="secondary" onClick={handleStep} disabled={busy || running}>
             <SkipForward size={17} />
             Step Frame
-          </Button>
-          <Button variant="secondary" onClick={handleReset} disabled={busy}>
+          </PremiumButton>
+          <PremiumButton variant="secondary" onClick={handleReset} disabled={busy}>
             <RefreshCcw size={17} />
             Reset Scene
-          </Button>
-          <Button variant="secondary" onClick={handleSaveReplay} disabled={busy}>
+          </PremiumButton>
+          <PremiumButton variant="glass" onClick={handleSaveReplay} disabled={busy}>
             <Save size={17} />
             Save Replay
-          </Button>
-          <div className="ml-auto min-w-0 text-sm text-muted-foreground">
+          </PremiumButton>
+          <div className="min-w-0 text-sm text-muted-foreground lg:ml-auto">
             {message}
             {replayPath && <span className="ml-2 hidden text-primary lg:inline">Replay: {shortPath(replayPath)}</span>}
           </div>
         </div>
         {error && <div className="mt-3 rounded-md border border-danger/40 bg-danger/10 p-3 text-sm text-danger">{error}</div>}
-      </GlassCard>
+      </PremiumCard>
 
-      <div className="grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
-        <div className="space-y-5">
+      <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="min-w-0 space-y-5">
           <PresetPanel onPreset={applyPreset} />
           <RadarSettingsPanel settings={settings} setSettings={setSettings} disabled={running} />
           <ObjectEditor objects={objects} onAdd={addObject} onRemove={removeObject} onUpdate={updateObject} disabled={running} />
         </div>
 
-        <div className="space-y-5">
-          <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
-            <MiniRadar objects={previewObjects} detections={detections} radarRange={settings.radar_range_m} />
-            <MiniHeatmap heatmap={frame?.heatmap} detections={detections} />
-          </div>
-          <div className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
-            <RuntimeMetrics
-              fps={stats?.simulated_fps ?? settings.frame_rate}
-              activeTracks={stats?.active_tracks ?? 0}
-              detections={stats?.detection_count ?? detections.length}
-              avgConfidence={stats?.avg_confidence ?? 0}
-            />
-            <DetectionList detections={detections} />
-          </div>
+        <div className="min-w-0 space-y-5">
+          <MiniRadar objects={previewObjects} detections={detections} radarRange={settings.radar_range_m} />
+          <MiniHeatmap heatmap={frame?.heatmap} detections={detections} />
+          <RuntimeMetrics
+            fps={stats?.simulated_fps ?? settings.frame_rate}
+            activeTracks={stats?.active_tracks ?? 0}
+            detections={stats?.detection_count ?? detections.length}
+            avgConfidence={stats?.avg_confidence ?? 0}
+          />
+          <DetectionList detections={detections} />
         </div>
       </div>
     </div>
@@ -368,7 +364,7 @@ export function SimulatorConsole({ autoRun = false }: { autoRun?: boolean }) {
 
 function PresetPanel({ onPreset }: { onPreset: (name: string) => void }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={Zap} title="Mission Presets" detail="quick scenes" />
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
         {Object.keys(PRESETS).map((name) => (
@@ -381,7 +377,7 @@ function PresetPanel({ onPreset }: { onPreset: (name: string) => void }) {
           </button>
         ))}
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -399,7 +395,7 @@ function RadarSettingsPanel({
   }
 
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={SlidersHorizontal} title="Radar Settings" detail="scene model" />
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <NumberField label="Radar range" suffix="m" value={settings.radar_range_m} min={500} max={20000} step={100} disabled={disabled} onChange={(value) => setNumber("radar_range_m", value)} />
@@ -415,7 +411,7 @@ function RadarSettingsPanel({
         <NumberField label="Guard cells" value={settings.guard_cells} min={1} max={8} step={1} disabled={disabled} onChange={(value) => setNumber("guard_cells", value)} />
         <NumberField label="Training cells" value={settings.training_cells} min={2} max={32} step={1} disabled={disabled} onChange={(value) => setNumber("training_cells", value)} />
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -433,13 +429,13 @@ function ObjectEditor({
   disabled: boolean;
 }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <div className="flex items-center justify-between gap-3">
         <PanelTitle icon={LocateFixed} title="Scene Objects" detail={`${objects.length} targets`} />
-        <Button size="sm" variant="secondary" onClick={onAdd} disabled={disabled}>
+        <PremiumButton size="sm" variant="glass" onClick={onAdd} disabled={disabled}>
           <Plus size={16} />
           Add
-        </Button>
+        </PremiumButton>
       </div>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[880px] text-left text-sm">
@@ -496,7 +492,7 @@ function ObjectEditor({
           </tbody>
         </table>
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -510,7 +506,7 @@ function MiniRadar({
   radarRange: number;
 }) {
   return (
-    <GlassCard className="overflow-hidden">
+    <PremiumCard className="overflow-hidden">
       <PanelTitle icon={Radar} title="Live Mini Radar" detail={`${objects.length} objects`} />
       <div className="relative mx-auto mt-4 aspect-square max-h-[360px] rounded-full border border-primary/30 bg-muted/25">
         <div className="absolute inset-[12%] rounded-full border border-border" />
@@ -524,7 +520,7 @@ function MiniRadar({
           <RadarBlip key={object.id} object={object} radarRange={radarRange} detected={detections.some((detection) => Math.abs(detection.estimated_range_m - object.range_m) < 180)} />
         ))}
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -586,10 +582,10 @@ function MiniHeatmap({ heatmap, detections }: { heatmap?: number[][]; detections
   }, [heatmap, detections]);
 
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={Activity} title="Mini Range-Doppler" detail={`${detections.length} detections`} />
       <canvas ref={canvasRef} width={520} height={360} className="mt-4 h-[300px] w-full rounded-lg border border-border bg-muted/30" />
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
@@ -611,7 +607,7 @@ function RuntimeMetrics({
     { label: "Confidence", value: `${Math.round(avgConfidence * 100)}%`, icon: Activity }
   ];
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={Download} title="System Metrics" detail="runtime" />
       <div className="mt-4 grid grid-cols-2 gap-3">
         {metrics.map(({ label, value, icon: Icon }) => (
@@ -620,17 +616,17 @@ function RuntimeMetrics({
               {label}
               <Icon size={15} />
             </div>
-            <div className="mt-2 text-2xl font-semibold text-foreground">{value}</div>
+            <div className="mt-2 font-mono text-2xl font-semibold text-foreground">{value}</div>
           </div>
         ))}
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 
 function DetectionList({ detections }: { detections: FrameDetection[] }) {
   return (
-    <GlassCard>
+    <PremiumCard>
       <PanelTitle icon={Crosshair} title="Detection List" detail={`${detections.length} contacts`} />
       <div className="mt-4 max-h-[284px] overflow-auto rounded-lg border border-border">
         <table className="w-full min-w-[560px] text-left text-sm">
@@ -662,7 +658,7 @@ function DetectionList({ detections }: { detections: FrameDetection[] }) {
           </tbody>
         </table>
       </div>
-    </GlassCard>
+    </PremiumCard>
   );
 }
 

@@ -32,7 +32,7 @@ export function Toast({
   return (
     <div
       className={cn(
-        "fixed right-4 top-20 z-50 flex max-w-sm items-start gap-3 rounded-xl border p-3 text-sm shadow-[0_18px_46px_hsl(222_47%_3%/0.22)] backdrop-blur-xl",
+        "fixed right-4 top-20 z-50 flex max-w-sm items-start gap-3 rounded-xl border p-3 text-sm shadow-lg",
         toneClass[tone],
         className
       )}

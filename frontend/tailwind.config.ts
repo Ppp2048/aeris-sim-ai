@@ -25,7 +25,9 @@ const config: Config = {
         glow: "0 0 40px rgba(34, 211, 238, 0.18)"
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "Inter", "system-ui", "sans-serif"]
+        sans: ["var(--font-geist-sans)", "Inter", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-geist-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"]
       }
     }
   },
