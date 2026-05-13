@@ -17,11 +17,15 @@ This project does **not** control hardware, transmit RF, implement firmware, gen
 
 > Replace these placeholders with real screenshots when publishing the repository.
 
-![Landing page placeholder](docs/screenshots/landing-placeholder.png)
+![Landing page placeholder](assets/screenshots/Dashboard.png)
 
-![Dashboard placeholder](docs/screenshots/dashboard-placeholder.png)
+![Dashboard placeholder](assets/screenshots/Simulator.png)
 
-![Simulator placeholder](docs/screenshots/simulator-placeholder.png)
+![Simulator placeholder](assets/screenshots/replay.png)
+
+![Simulator placeholder](assets/recs/rec2.gif)
+
+![Simulator placeholder](assets/recs/rec3.gif)
 
 ## What It Does
 
